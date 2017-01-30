@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace naru.db
 {
@@ -28,9 +25,5 @@ namespace naru.db
                 return m_nID;
             }
         }
-
-     
-    }
-}
     }
 }
