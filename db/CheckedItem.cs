@@ -8,7 +8,7 @@ namespace naru.db
         {
             private Boolean Checked { get; set; }
             
-            public CheckedListItem(int nID, string sName, Boolean bChecked = true)
+            public CheckedListItem(long nID, string sName, Boolean bChecked = true)
                 : base(nID, sName)
             {
                 Checked = bChecked;

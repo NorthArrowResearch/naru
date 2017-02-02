@@ -45,7 +45,7 @@ namespace naru.db.sqlite
 
     public class CheckedListItem
     {
-        public static int LoadComboWithListItems(ref System.Windows.Forms.CheckedListBox lst, string sDBCon, string sSQL, bool bCheckItems)
+        public static int LoadCheckListbox(ref System.Windows.Forms.CheckedListBox lst, string sDBCon, string sSQL, bool bCheckItems)
         {
             lst.Items.Clear();
 
