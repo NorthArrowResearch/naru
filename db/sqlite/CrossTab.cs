@@ -55,7 +55,7 @@ namespace naru.db.sqlite
                     cols.Add(new DataColumn(dbRead.GetString(1), Type.GetType("System.Double")));
 
                     // Create a look up for this column using the ID field that is the first field of the SQL
-                    dColumns[dbRead.GetInt64(0)] = cols.Count;
+                    dColumns[dbRead.GetInt64(0)] = cols.Count -1;
                 }
             }
 
@@ -74,7 +74,7 @@ namespace naru.db.sqlite
                 {
                     long nRowID = dbRead.GetInt64(0);
                     DataRow row = dt.NewRow();
-                    row.SetField<string>(0, dbRead.GetString(1));
+                    row.SetField<string>(0, naru.db.sqlite.SQLiteHelpers.GetSafeValueStr(ref dbRead, 1));
                     dRows[nRowID] = dt.Rows.Count;
                     dt.Rows.Add(row);
                 }
@@ -96,11 +96,13 @@ namespace naru.db.sqlite
                         if (dRows.ContainsKey(nRowID))
                         {
                             int rowIndex = dRows[nRowID];
+                            System.Diagnostics.Debug.Assert(rowIndex < dt.Rows.Count);
 
                             long nColID = dbRead.GetInt64(1);
                             if (dCols.ContainsKey(nColID))
                             { 
                                 int colIndex = dCols[nColID] + 1; // Don't forget that there's one fixed column before the data columns
+                                System.Diagnostics.Debug.Assert(colIndex < dt.Columns.Count);
                                 dt.Rows[rowIndex].SetField<double>(colIndex, dbRead.GetDouble(2));
                             }
                         }
