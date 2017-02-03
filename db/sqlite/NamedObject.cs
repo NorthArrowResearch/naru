@@ -27,7 +27,7 @@ namespace naru.db.sqlite
             return cbo.Items.Count;
         }
 
-        public static void SelectItem(ref System.Windows.Forms.ComboBox cbo, int nID)
+        public static void SelectItem(ref System.Windows.Forms.ComboBox cbo, long nID)
         {
             for (int i = 0; i < cbo.Items.Count; i++)
             {
