@@ -28,7 +28,7 @@ namespace naru.db.sqlite
             else
                 return dbRead.GetInt64(dbRead.GetOrdinal(sColumnName));
         }
-        
+
         public static Nullable<long> GetSafeValueNInt(ref SQLiteDataReader dbRead, string sColumnName)
         {
             Nullable<long> nResult = new Nullable<long>();
@@ -40,7 +40,7 @@ namespace naru.db.sqlite
         public static bool GetSafeValueBool(ref SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
-               return false;
+                return false;
             else
                 return dbRead.GetBoolean(dbRead.GetOrdinal(sColumnName));
         }
@@ -48,9 +48,9 @@ namespace naru.db.sqlite
         public static DateTime GetSafeValueDT(ref SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
-                 return DateTime.Now;
+                return DateTime.Now;
             else
-                return (DateTime) dbRead[sColumnName];
+                return (DateTime)dbRead[sColumnName];
         }
 
         public static Nullable<DateTime> GetSafeValueNDT(ref SQLiteDataReader dbRead, string sColumnName)
@@ -63,10 +63,29 @@ namespace naru.db.sqlite
 
         public static string GetSafeValueStr(ref SQLiteDataReader dbRead, string sColumnName)
         {
-            if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
-                return string.Empty;
-            else
-                return dbRead.GetString(dbRead.GetOrdinal(sColumnName));
+            return GetSafeValueStr(ref dbRead, dbRead.GetOrdinal(sColumnName));
+        }
+
+        public static string GetSafeValueStr(ref SQLiteDataReader dbRead, int ColIndex)
+        {
+            string sValue = string.Empty;
+            if (!dbRead.IsDBNull(ColIndex))
+            {
+                switch (dbRead[ColIndex].GetType().Name.ToLower())
+                {
+                    case "string":
+                        sValue = dbRead.GetString(ColIndex);
+                        break;
+
+                    case "int64":
+                        sValue = dbRead.GetInt64(ColIndex).ToString();
+                        break;
+
+                    default:
+                        throw new Exception("Unhandled data type.");
+                }
+            }
+            return sValue;
         }
 
         /// <summary>
@@ -82,11 +101,11 @@ namespace naru.db.sqlite
         }
 
         public static SQLiteParameter AddStringParameterN(ref SQLiteCommand dbCom, string sStringValue, string sParameterName)
-        { 
+        {
             System.Diagnostics.Debug.Assert(dbCom.CommandText.ToLower().Contains("insert") || dbCom.CommandText.ToLower().Contains("update"), "SQL command must be an INSERT or UPDATE command");
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sParameterName), "The parameter name cannot be empty.");
             System.Diagnostics.Debug.Assert(!dbCom.Parameters.Contains(sParameterName), "The SQL command already contains a parameter with this name.");
-            
+
             string sValue = sStringValue.Trim();
             SQLiteParameter p = dbCom.Parameters.Add(sParameterName, System.Data.DbType.String);
             if (string.IsNullOrEmpty(sValue))
