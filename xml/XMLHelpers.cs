@@ -30,7 +30,8 @@ namespace naru.xml
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sNodeName), "The XML node name cannot be empty.");
             XmlNode nod = xmlDoc.CreateElement(sNodeName);
-            nod.InnerText = sInnerText;
+            if (!string.IsNullOrEmpty(sInnerText))
+                nod.InnerText = sInnerText;
             nodParent.AppendChild(nod);
             return nod;
         }
