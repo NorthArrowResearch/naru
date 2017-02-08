@@ -41,9 +41,12 @@ namespace naru.db
             get { return m_sName; }
             set
             {
-                base.Name = value;
-                if (m_eState != DBState.New)
-                    m_eState = DBState.Edited;
+                if (string.Compare(m_sName, value) != 0)
+                {
+                    base.Name = value;
+                    if (m_eState != DBState.New)
+                        m_eState = DBState.Edited;
+                }
             }
         }
 
