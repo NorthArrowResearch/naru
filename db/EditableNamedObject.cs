@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data.SQLite;
 
 namespace naru.db
 {
@@ -44,6 +45,22 @@ namespace naru.db
                 if (m_eState != DBState.New)
                     m_eState = DBState.Edited;
             }
+        }
+
+        protected static void AddParameter(ref SQLiteCommand dbCom, string sParameterName, System.Data.DbType dbType, object objValue)
+        {
+            SQLiteParameter p = null;
+            if (dbCom.Parameters.Contains(sParameterName))
+                p = dbCom.Parameters[sParameterName];
+            else
+            {
+                p = dbCom.Parameters.Add(sParameterName, dbType);
+            }
+
+            if (objValue == null)
+                p.Value = DBNull.Value;
+            else
+                p.Value = objValue;
         }
     }
 }
