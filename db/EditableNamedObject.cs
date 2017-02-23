@@ -27,13 +27,13 @@ namespace naru.db
             }
         }
 
-        public EditableNamedObject(long nID, String sName)
+        public EditableNamedObject(long nID, String sName, DBState eState)
             : base(nID, sName)
         {
             if (nID > 0)
-                State = DBState.Unchanged;
+                m_eState = eState;
             else
-                State = DBState.New;
+                m_eState = DBState.New;
         }
 
         public new string Name
