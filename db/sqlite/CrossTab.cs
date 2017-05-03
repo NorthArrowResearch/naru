@@ -52,9 +52,12 @@ namespace naru.db.sqlite
                 while (dbRead.Read())
                 {
                     // Create the column using the name specified in the second field of the SQL
-                    cols.Add(new DataColumn(dbRead.GetString(1), Type.GetType("System.Double")));
+                    DataColumn newCol = new DataColumn(dbRead.GetString(1), Type.GetType("System.Double"));
+                    System.Diagnostics.Debug.Assert(!cols.Contains<DataColumn>(newCol), "The column already exists");
+                    cols.Add(newCol);
 
                     // Create a look up for this column using the ID field that is the first field of the SQL
+                    System.Diagnostics.Debug.Assert(!dColumns.ContainsKey(dbRead.GetInt64(0)), "The table definition already contains a column for this metric");
                     dColumns[dbRead.GetInt64(0)] = cols.Count -1;
                 }
             }
