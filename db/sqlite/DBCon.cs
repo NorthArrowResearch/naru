@@ -20,6 +20,8 @@ namespace naru.db.sqlite
         private const string m_sRootConnectionStringLocal = "Data Source={0};Version=3;Pooling=True;Max Pool Size=100;foreign keys=true;";
         private const string m_sRootConnectionStringMaster = "server={0};uid={1};pwd={2};database={3};";
 
+        private static Dictionary<string, string> SessionSettings;
+
         public static DBCon Instance
         {
             get
@@ -75,6 +77,25 @@ namespace naru.db.sqlite
         private DBCon()
         {
             // deliberately private and empty constructor.
+        }
+
+        public static void SetSessionSetting(string sKey, string sValue)
+        {
+            if (SessionSettings == null)
+                SessionSettings = new Dictionary<string, string>();
+
+            SessionSettings[sKey] = sValue;
+        }
+
+        public static string GetSessionSetting(string sKey)
+        {
+            string sValue = string.Empty;
+            if (SessionSettings != null)
+            {
+                if (SessionSettings.ContainsKey(sKey))
+                    sValue = SessionSettings[sKey];
+            }
+            return sValue;
         }
     }
 }
