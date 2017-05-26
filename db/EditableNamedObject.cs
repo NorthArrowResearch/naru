@@ -63,7 +63,19 @@ namespace naru.db
             if (objValue == null)
                 p.Value = DBNull.Value;
             else
-                p.Value = objValue;
+            {
+                if (objValue.GetType() == Type.GetType("System.String"))
+                {
+                    if (string.IsNullOrEmpty(objValue.ToString().Trim()))
+                    {
+                        p.Value = DBNull.Value;
+                    }
+                    else
+                        p.Value = objValue;
+                }
+                else
+                    p.Value = objValue;
+            }
         }
     }
 }
