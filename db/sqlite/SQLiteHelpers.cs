@@ -5,6 +5,17 @@ namespace naru.db.sqlite
 {
     class SQLiteHelpers
     {
+        public static long GetScalarID(ref SQLiteCommand dbCom)
+        {
+            long nID = 0;
+            object objID = dbCom.ExecuteScalar();
+            if (objID != null && objID != DBNull.Value)
+            {
+                nID = (long)objID;
+            }
+            return nID;
+        }
+
         public static double GetSafeValueDbl(ref SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
