@@ -72,6 +72,7 @@ namespace naru.db.sqlite
             {
                 dbCon.Open();
                 SQLiteCommand dbCom = new SQLiteCommand(sqlRows, dbCon);
+                System.Diagnostics.Debug.Print("Crosstab row SQL: {0}", sqlRows);
                 SQLiteDataReader dbRead = dbCom.ExecuteReader();
                 while (dbRead.Read())
                 {
@@ -90,6 +91,7 @@ namespace naru.db.sqlite
             {
                 dbCon.Open();
                 SQLiteCommand dbCom = new SQLiteCommand(sqlContents, dbCon);
+                System.Diagnostics.Debug.Print("Crosstab content SQL: {0}", sqlContents);
                 SQLiteDataReader dbRead = dbCom.ExecuteReader();
                 while (dbRead.Read())
                 {
