@@ -39,7 +39,7 @@ namespace naru.db.sqlite
             return dt;
         }
 
-        private static DataColumn[] AppendDataColumns(string sDBCon, string sqlCols, out Dictionary<long, int> dColumns)
+        protected static DataColumn[] AppendDataColumns(string sDBCon, string sqlCols, out Dictionary<long, int> dColumns)
         {
             List<DataColumn> cols = new List<DataColumn>();
             dColumns = new Dictionary<long, int>();
