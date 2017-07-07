@@ -77,54 +77,57 @@ namespace naru.db.sqlite
                 {
                     if (!dbRead.IsDBNull(2))
                     {
-                        int rowIndex = GetRowIndex(ref dRows, Keycolumns, ref dbRead, dt.Rows.Count);
+                        int rowIndex = GetRowIndex(dRows, Keycolumns, ref dbRead, 0, dt.Rows.Count);
 
                         if (rowIndex == dt.Rows.Count)
                         {
                             DataRow row = dt.NewRow();
                             dt.Rows.Add(row);
                         }
-                        
+
                         long nColID = dbRead.GetInt64(dbRead.GetOrdinal("MetricID"));
                         if (dCols.ContainsKey(nColID))
                         {
                             int colIndex = dCols[nColID] + Keycolumns.Count; // Don't forget that there's fixed columns before the data columns
                             System.Diagnostics.Debug.Assert(colIndex < dt.Columns.Count);
-                            dt.Rows[rowIndex].SetField<double>(colIndex, dbRead.GetDouble(2));
+                            dt.Rows[rowIndex].SetField<double>(colIndex, dbRead.GetDouble(dbRead.GetOrdinal("MetricValue")));
                         }
+
+                        foreach (Tuple<string,string> col in Keycolumns)
+                            dt.Rows[rowIndex].SetField<string>(dt.Columns.IndexOf(col.Item1), dbRead[col.Item1].ToString());
                     }
                 }
             }
         }
 
-        private static int GetRowIndex(ref Dictionary<long, object> dRows, List<Tuple<string, string>> Keycolumns, ref SQLiteDataReader dbRead, int nExistingRowCount)
+        private static int GetRowIndex(Dictionary<long, object> dRows, List<Tuple<string, string>> Keycolumns, ref SQLiteDataReader dbRead, int keyIndex, int nExistingRowCount)
         {
             int nRowIndex = 0;
 
-            Dictionary<long, object> searchDict = dRows;
-            for (int i = 0; i < Keycolumns.Count; i++)
+            long nKeyValue = dbRead.GetInt64(dbRead.GetOrdinal(Keycolumns[keyIndex].Item1));
+            if (dRows.ContainsKey(nKeyValue))
             {
-                long nKeyValue = dbRead.GetInt64(dbRead.GetOrdinal(Keycolumns[i].Item1));
-                if (searchDict.ContainsKey(nKeyValue))
+                if (keyIndex < Keycolumns.Count - 1)
                 {
-                    if (i < Keycolumns.Count - 1)
-                    {
-                        searchDict = (Dictionary<long, object>)searchDict[nKeyValue];
-                    }
-                    else
-                    {
-                        nRowIndex=(int)searchDict[nKeyValue];
-                    }
+                    nRowIndex = GetRowIndex((Dictionary<long, object>)dRows[nKeyValue], Keycolumns, ref dbRead, keyIndex + 1, nExistingRowCount);
                 }
                 else
                 {
-                    if (i < Keycolumns.Count - 1)
-                        searchDict[nKeyValue] = new Dictionary<long, object>();
-                    else
-                    {
-                        searchDict[nKeyValue] = nExistingRowCount;
-                        nRowIndex = nExistingRowCount;
-                    }
+                    nRowIndex = (int)dRows[nKeyValue];
+                }
+            }
+            else
+            {
+                dRows[nKeyValue] = new Dictionary<long, object>();
+
+                if (keyIndex < Keycolumns.Count - 1)
+                {
+                    nRowIndex = GetRowIndex((Dictionary<long, object>)dRows[nKeyValue], Keycolumns, ref dbRead, keyIndex + 1, nExistingRowCount);
+                }
+                else
+                {
+                    dRows[nKeyValue] = nExistingRowCount;
+                    nRowIndex = nExistingRowCount;
                 }
             }
 
