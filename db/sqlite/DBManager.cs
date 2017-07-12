@@ -14,8 +14,8 @@ namespace naru.db.sqlite
         public string SQLVersion { get; internal set; }
         public int MinimumSupportedVersion { get; internal set; }
 
-        private string DatabaseStructureSQLFile { get; set; }
-        private string DatabaseContentsSQLFile { get; set; }
+        private string DatabaseStructureSQLFileName { get; set; }
+        private string DatabaseContentsWildcardPattern { get; set; }
 
         public override string ToString()
         {
@@ -30,29 +30,56 @@ namespace naru.db.sqlite
             }
         }
 
+        /// <summary>
+        /// The full absolute path to the file containing the SQL that creates all the tables and views
+        /// </summary>
+        /// <remarks>This is the executable folder with the Database structure file name appended. If the
+        /// file name has a folder as part of it (.e.g. "Database\myfile.sql") then it is included in this path</remarks>
+        public string DatabaseStructureFilePath
+        {
+            get
+            {
+                string sPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), DatabaseStructureSQLFileName);
+                if (!System.IO.File.Exists(sPath))
+                    throw new Exception("The database structure file does not exist.");
+                return sPath;
+            }
+        }
+
+        /// <summary>
+        /// Return a connection string from a file path
+        /// </summary>
+        /// <param name="sFilePath">Full, absolute file path to a SQLite database</param>
+        /// <returns>SQLite connection string</returns>
+        /// <remarks>Static method, so can be used without instantiating the class</remarks>
         private static string BuildConnectionString(string sFilePath)
         {
             return string.Format("Data Source={0};Version=3;Pooling=True;Max Pool Size=100;foreign keys=true;", sFilePath);
         }
 
         /// <summary>
-        /// 
+        /// Pure virtual Constructor. Must be inherited.
         /// </summary>
-        /// <param name="sFilePath"></param>
-        /// <param name="sqlVersionQuery"></param>
-        /// <param name="nMinSupporterVersion"></param>
+        /// <param name="sFilePath">Full absolute file path to a SQLite database</param>
+        /// <param name="sqlVersionQuery">SQL command that is used to determine the version of the database</param>
+        /// <param name="nMinSupporterVersion">Minimum version of the database supported for upgrade</param>
+        /// <param name="sDBStructureSQL">Relative path from the software executable where the database structure SQL file is stored (e.g. "Database\myfile.sql")</param>
+        /// <param name="sDBDataWildcard">Wildcard used to find lookup data SQL files in the same folder as the structure SQL file</param>
         /// <remarks>This constructor is also used during the creation of new databases.
-        /// So do not check for the existance of the file on disck because it might not be present yet.</remarks>
+        /// So do not check for the existance of the file on disck because it might not be present yet.
+        /// 
+        /// Each of the data SQL files must have the corresponding database table name after this DataWildcard.
+        /// For example if the wildcard is "_data_" an example file name might be mytool_data_MyTable.sql</remarks>
         public DBManager(string sFilePath, string sqlVersionQuery, int nMinSupporterVersion
-            , string sDBStructureSQL, string sDBContentsSQL)
+            , string sDBStructureSQL, string sDBDataWildcard)
         {
             if (string.IsNullOrEmpty(sFilePath))
                 throw new Exception("Empty database file path");
 
             SQLVersion = sqlVersionQuery;
             FilePath = new System.IO.FileInfo(sFilePath);
-            DatabaseStructureSQLFile = sDBStructureSQL;
-            DatabaseContentsSQLFile = sDBContentsSQL;
+            DatabaseStructureSQLFileName = sDBStructureSQL;
+            DatabaseContentsWildcardPattern = sDBDataWildcard;
         }
 
         public int GetDBVersion()
@@ -87,46 +114,116 @@ namespace naru.db.sqlite
             return nRequiredVersion > nCurrentVersion;
         }
 
+        /// <summary>
+        /// Creates a new database file, complete with tables, views and lookup data
+        /// </summary>
         public void CreateDatabase()
         {
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // Load the database structure and contents SQL files.
-            // Do this first so that any problems loading the file occur before the new database is created on disk.
+            string sqlStructureSQL = string.Empty;
+            List<string> sqlContentsSQL = null;
 
-            string sqlStructure = LoadSQLStatements(DatabaseStructureSQLFile, "structure");
-
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // Verify that the database file does not already exist, then create it
             try
             {
-                if (FilePath.Exists)
-                    throw new Exception("The database file path already exists.");
+                // Load the structure and data SQL first so any problems occur before DB created on disk
+                LoadDBStructureStatements(out sqlStructureSQL);
+                LoadDataStatements(out sqlContentsSQL);
 
-                SQLiteConnection.CreateFile(FilePath.FullName);
+                // Create the empty SQLite database file
+                CreateEmptyDatabase();
+
+                // Build the DB structure and populate lookup tables
+                PopulateEmptyDatabase(sqlStructureSQL, sqlContentsSQL);
             }
             catch (Exception ex)
             {
-                Exception ex2 = new Exception("Error generating new SQLite database file", ex);
-                ex2.Data["File Path"] = FilePath.FullName;
-                throw ex2;
+                ex.Data["Database File Path"] = FilePath.FullName;
+                ex.Data["Database Structure File Path"] = DatabaseStructureFilePath;
+                ex.Data["Lookup Data Wildard"] = DatabaseContentsWildcardPattern;
+                throw;
             }
+        }
 
+        /// <summary>
+        /// Open the text file that contains the structure SQL statements and reads them into a string
+        /// </summary>
+        /// <param name="sqlDBStructure"></param>
+        private void LoadDBStructureStatements(out string sqlDBStructure)
+        {
+            sqlDBStructure = System.IO.File.ReadAllText(DatabaseStructureFilePath);
+
+            if (string.IsNullOrEmpty(sqlDBStructure))
+                throw new Exception("The database structure file is empty.");
+        }
+
+        /// <summary>
+        /// Creates the actual SQLite database file on disk
+        /// </summary>
+        /// <remarks>Note that the database will have no tables, views or data etc.</remarks>
+        private void CreateEmptyDatabase()
+        {
+            // Verify that the output new database file does not already exist, then create it
+            if (FilePath.Exists)
+                throw new Exception("The database file path already exists.");
+
+            SQLiteConnection.CreateFile(FilePath.FullName);
+        }
+
+        /// <summary>
+        /// Find all text files containing lookup data and load the SQL commands in each file into a list
+        /// </summary>
+        /// <param name="sqlDataStatements">List of lookup data insert commands. One item in list per database lookup table.</param>
+        private void LoadDataStatements(out List<string> sqlDataStatements)
+        {
+            sqlDataStatements = new List<string>();
+
+            // Find all SQL files that insert lookup data into the database. These should be the data insert queries (e.g. Workbench_data_USGS_Gages.sql).
+            string sSearchPath = string.Format("*{0}*.sql", DatabaseContentsWildcardPattern);
+            foreach (string sFilePath in System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(DatabaseStructureFilePath), sSearchPath))
+            {
+                // Determine the data table from the filename that follows the keyword _data_ and preceeds the file suffix.
+                Regex re = new Regex(string.Format(".*_data_(.*).sql", DatabaseContentsWildcardPattern));
+                Match tableNameMatch = re.Match(sFilePath);
+                string sTableName = tableNameMatch.Groups[1].ToString();
+
+                // Replace the table placeholder text with the actual database table name
+                string sSQLStatements = System.IO.File.ReadAllText(sFilePath);
+                sSQLStatements = sSQLStatements.Replace("INSERT INTO table", string.Format("INSERT INTO {0}", sTableName));
+                sqlDataStatements.Add(sSQLStatements);
+            }
+        }
+
+        /// <summary>
+        /// Takes and empty SQLite database file and executes the commands to create tables, views and fill lookup data tables
+        /// </summary>
+        /// <param name="sqlStructure">All the SQL commands to create the database structure. Separated by semicolon</param>
+        /// <param name="sqlData">List of SQL commands to populate lookup tables with data. Each list item is a separate lookup table</param>
+        private void PopulateEmptyDatabase(string sqlStructure, List<string> sqlData)
+        {
+            // Loop over each table that has lookup data defined and insert it.
+            // Ensure referential integrity is off to make this insensitive to the order of the files 
             using (SQLiteConnection dbCon = new SQLiteConnection(ConnectionString))
             {
                 dbCon.Open();
-
                 SQLiteCommand dbCom = new SQLiteCommand("PRAGMA foreign_keys = off;", dbCon);
                 dbCom.ExecuteNonQuery();
 
+                // Not strictly needed because errors are irrecoverable, but speeds up the operation.
                 SQLiteTransaction dbTrans = dbCon.BeginTransaction();
 
                 try
                 {
+                    // Build the database structure
                     dbCom = new SQLiteCommand(sqlStructure, dbTrans.Connection, dbTrans);
                     dbCom.ExecuteNonQuery();
 
-                    LoadDataStatements(ref dbTrans, DatabaseContentsSQLFile, "contents");
-                    
+                    // Populate each lookup table with data
+                    foreach (string sqlDataCommand in sqlData)
+                    {
+                        dbCom = new SQLiteCommand(sqlDataCommand, dbTrans.Connection, dbTrans);
+                        dbCom.ExecuteNonQuery();
+                    }
+
+                    // Turn referential integrity back on
                     dbCom = new SQLiteCommand("PRAGMA foreign_keys = on;", dbTrans.Connection, dbTrans);
                     dbCom.ExecuteNonQuery();
 
@@ -138,56 +235,6 @@ namespace naru.db.sqlite
                     ex.Data["File Path"] = FilePath.FullName;
                     throw;
                 }
-            }
-        }
-
-        private string LoadSQLStatements(string sFileName, string sSQLType)
-        {
-            string sPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), DatabaseStructureSQLFile);
-            if (!System.IO.File.Exists(sPath))
-            {
-                Exception ex = new Exception(string.Format("The SQL {0} file does not exist.", sSQLType));
-                ex.Data["File Path"] = sPath;
-                throw ex;
-            }
-
-            string sSQLStatements = string.Empty;
-            try
-            {
-                sSQLStatements = System.IO.File.ReadAllText(sPath);
-
-                if (string.IsNullOrEmpty(sSQLStatements))
-                    throw new Exception("The SQL file is empty.");
-            }
-            catch (Exception ex)
-            {
-                Exception ex2 = new Exception(string.Format("Error loading statements from {0} SQL file.", sSQLType), ex);
-                ex2.Data["File Path"] = sPath;
-                throw ex2;
-            }
-
-            return sSQLStatements;
-        }
-
-
-        private void LoadDataStatements(ref SQLiteTransaction dbTrans, string filenameWildcard, string sSQLType)
-        {
-            // Find all SQL files in the Database folder that have the wildcard pattern. These should be the data insert queries (e.g. Workbench_data_USGS_Gages.sql).
-            string dbDefinitionDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Database");
-            string sSearchPath = string.Format("*{0}*.sql", filenameWildcard);
-            foreach (string sFilePath in System.IO.Directory.GetFiles(dbDefinitionDir, sSearchPath))
-            {
-                // Determine the data table from the filename that follows the keyword _data_ and preceeds the file suffix.
-                Regex re = new Regex(string.Format(".*_data_(.*).sql", filenameWildcard));
-                Match tableNameMatch = re.Match(sFilePath);
-                string sTableName = tableNameMatch.Groups[1].ToString();
-
-                // Replace the table placeholder text with the actual database table name
-                string sSQLStatements = System.IO.File.ReadAllText(sFilePath);
-                sSQLStatements = sSQLStatements.Replace("INSERT INTO table", string.Format("INSERT INTO {0}", sTableName));
-
-                SQLiteCommand dbCom = new SQLiteCommand(sSQLStatements, dbTrans.Connection, dbTrans);
-                dbCom.ExecuteNonQuery();
             }
         }
 
