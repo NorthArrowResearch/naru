@@ -15,6 +15,14 @@ namespace naru.db.sqlite
         public int MinimumSupportedVersion { get; internal set; }
         private string DatabaseStructureSQLFileName { get; set; }
 
+        public enum UpgradeStates
+        {
+            MatchesCurrentVersion,
+            RequiresUpgrade,
+            BelowMinimumVersion,
+            ExceedsCurrentVersion
+        }
+
         public override string ToString()
         {
             return ConnectionString;
@@ -25,6 +33,41 @@ namespace naru.db.sqlite
             get
             {
                 return BuildConnectionString(FilePath.FullName);
+            }
+        }
+
+        /// <summary>
+        /// Public method for checking whether a DB requires upgrading
+        /// </summary>
+        /// <param name="nRequiredVersion"></param>
+        /// <returns></returns>
+        public UpgradeStates CheckUpgradeStatus(int nRequiredVersion)
+        {
+            return CheckUpgradeStatus(GetDBVersion(), MinimumSupportedVersion, nRequiredVersion);
+        }
+
+        /// <summary>
+        /// Private unit testable method for checking whether a DB requires upgrading
+        /// </summary>
+        /// <param name="nCurrentVersion"></param>
+        /// <param name="nMinimumVersion"></param>
+        /// <param name="nRequiredVersion"></param>
+        /// <returns></returns>
+        private UpgradeStates CheckUpgradeStatus(int nCurrentVersion, int nMinimumVersion, int nRequiredVersion)
+        {
+            if (nCurrentVersion == nRequiredVersion)
+                return UpgradeStates.MatchesCurrentVersion;
+            else
+            {
+                if (nCurrentVersion < MinimumSupportedVersion)
+                    return UpgradeStates.BelowMinimumVersion;
+                else
+                {
+                    if (nCurrentVersion > nRequiredVersion)
+                        return UpgradeStates.ExceedsCurrentVersion;
+                    else
+                        return UpgradeStates.RequiresUpgrade;
+                }
             }
         }
 
@@ -76,6 +119,7 @@ namespace naru.db.sqlite
             SQLVersion = sqlVersionQuery;
             FilePath = new System.IO.FileInfo(sFilePath);
             DatabaseStructureSQLFileName = sDBStructureSQL;
+            MinimumSupportedVersion = nMinSupporterVersion;
         }
 
         public int GetDBVersion()
@@ -152,11 +196,28 @@ namespace naru.db.sqlite
 
             using (SQLiteConnection dbCon = new SQLiteConnection(ConnectionString))
             {
+                dbCon.Open();
                 SQLiteTransaction dbTrans = dbCon.BeginTransaction();
 
                 try
                 {
-                    UpgradeMaster(ref dbTrans, nRequiredVersion);
+                    int nCurrentVersion = GetDBVersion();
+                    while (nCurrentVersion < nRequiredVersion)
+                    {
+                        int nNextVersion = nCurrentVersion + 1;
+
+                        Upgrade(ref dbTrans, nNextVersion);
+
+                        // Store the new database version
+                        SQLiteCommand dbCom = new SQLiteCommand("UPDATE VersionInfo SET ValueInfo = @ValueInfo WHERE Key = @Key", dbTrans.Connection, dbTrans);
+                        dbCom.Parameters.AddWithValue("ValueInfo", nNextVersion.ToString());
+                        dbCom.Parameters.AddWithValue("Key", "DatabaseVersion");
+                        dbCom.ExecuteNonQuery();
+                        
+                        // Increment the database version and continue
+                        nCurrentVersion = nNextVersion;
+                    }
+
                     dbTrans.Commit();
                 }
                 catch (Exception ex)
@@ -167,7 +228,7 @@ namespace naru.db.sqlite
             }
         }
 
-        protected abstract void UpgradeMaster(ref SQLiteTransaction dbTrans, int nRequiredVersion);
+        protected abstract void Upgrade(ref SQLiteTransaction dbTrans, int nRequiredVersion);
         protected abstract void BaseInstall(ref SQLiteTransaction dbTrans);
     }
 }
