@@ -16,6 +16,12 @@ namespace naru.db.sqlite
             return nID;
         }
 
+        public static long GetScalarID(SQLiteConnection dbCon, string sSQL)
+        {
+            SQLiteCommand dbCom = new SQLiteCommand(sSQL, dbCon);
+            return GetScalarID(ref dbCom);
+        }
+
         public static double GetSafeValueDbl(ref SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
