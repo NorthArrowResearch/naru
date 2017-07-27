@@ -105,5 +105,117 @@ namespace naru.db.mysql
 
             return p;
         }
+
+        public static long GetScalarID(ref MySqlCommand dbCom)
+        {
+            long nID = 0;
+            object objID = dbCom.ExecuteScalar();
+            if (objID != null && objID != DBNull.Value)
+            {
+                nID = (long)objID;
+            }
+            return nID;
+        }
+
+        public static long GetScalarID(MySqlConnection dbCon, string sSQL)
+        {
+            MySqlCommand dbCom = new MySqlCommand(sSQL, dbCon);
+            return GetScalarID(ref dbCom);
+        }
+
+        public static long GetScalarID(string sDBCon, string sSQL)
+        {
+            long nResult = 0;
+            using (MySqlConnection dbCon = new MySqlConnection(sDBCon))
+            {
+                dbCon.Open();
+                nResult = GetScalarID(dbCon, sSQL);
+            }
+            return nResult;
+        }
+
+        public static double GetSafeValueDbl(ref MySqlDataReader dbRead, string sColumnName)
+        {
+            if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+                return 0;
+            else
+                return dbRead.GetDouble(dbRead.GetOrdinal(sColumnName));
+        }
+
+        public static Nullable<double> GetSafeValueNDbl(ref MySqlDataReader dbRead, string sColumnName)
+        {
+            Nullable<double> fResult = new Nullable<double>();
+            if (!dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+                fResult = dbRead.GetDouble(dbRead.GetOrdinal(sColumnName));
+            return fResult;
+        }
+
+        public static long GetSafeValueInt(ref MySqlDataReader dbRead, string sColumnName)
+        {
+            if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+                return 0;
+            else
+                return dbRead.GetInt64(dbRead.GetOrdinal(sColumnName));
+        }
+
+        public static Nullable<long> GetSafeValueNInt(ref MySqlDataReader dbRead, string sColumnName)
+        {
+            Nullable<long> nResult = new Nullable<long>();
+            if (!dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+                nResult = dbRead.GetInt64(dbRead.GetOrdinal(sColumnName));
+            return nResult;
+        }
+
+        public static bool GetSafeValueBool(ref MySqlDataReader dbRead, string sColumnName)
+        {
+            if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+                return false;
+            else
+                return dbRead.GetBoolean(dbRead.GetOrdinal(sColumnName));
+        }
+
+        public static DateTime GetSafeValueDT(ref MySqlDataReader dbRead, string sColumnName)
+        {
+            if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+                return DateTime.Now;
+            else
+                return (DateTime)dbRead[sColumnName];
+        }
+
+        public static Nullable<DateTime> GetSafeValueNDT(ref MySqlDataReader dbRead, string sColumnName)
+        {
+            Nullable<DateTime> dtValue = new Nullable<DateTime>();
+            if (!dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+                dtValue = dbRead.GetDateTime(dbRead.GetOrdinal(sColumnName));
+            return dtValue;
+        }
+
+        public static string GetSafeValueStr(ref MySqlDataReader dbRead, string sColumnName)
+        {
+            return GetSafeValueStr(ref dbRead, dbRead.GetOrdinal(sColumnName));
+        }
+
+        public static string GetSafeValueStr(ref MySqlDataReader dbRead, int ColIndex)
+        {
+            string sValue = string.Empty;
+            if (!dbRead.IsDBNull(ColIndex))
+            {
+                switch (dbRead[ColIndex].GetType().Name.ToLower())
+                {
+                    case "string":
+                        sValue = dbRead.GetString(ColIndex);
+                        break;
+
+                    case "int64":
+                        sValue = dbRead.GetInt64(ColIndex).ToString();
+                        break;
+
+                    default:
+                        throw new Exception("Unhandled data type.");
+                }
+            }
+            return sValue;
+        }
+
     }
 }
