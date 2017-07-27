@@ -217,5 +217,41 @@ namespace naru.db.mysql
             return sValue;
         }
 
+        public static void FillTextBox(ref MySqlDataReader dbRead, string sColumnName, ref TextBox txt)
+        {
+            if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+                txt.Text = string.Empty;
+            else
+                txt.Text = dbRead.GetString(sColumnName);
+        }
+
+        public static void FillNumericUpDown(ref MySqlDataReader dbRead, string sColumnName, ref NumericUpDown val, int nExponent = 0)
+        {
+            if (!dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
+            {
+                switch (dbRead.GetDataTypeName(dbRead.GetOrdinal(sColumnName)).ToLower())
+                {
+                    case "Int64":
+                    case "int":
+                        decimal fRawIntValue = (decimal)dbRead.GetInt64(sColumnName);
+                        if (nExponent != 0)
+                            val.Value = fRawIntValue * (decimal)Math.Pow(10, nExponent);
+                        else
+                            val.Value = fRawIntValue;
+                        break;
+
+                    case "double":
+                        decimal fRawValue = (decimal)dbRead.GetDouble(sColumnName);
+                        if (nExponent != 0)
+                            val.Value = fRawValue * (decimal)Math.Pow(10, nExponent);
+                        else
+                            val.Value = fRawValue;
+                        break;
+
+                    default:
+                        throw new Exception(string.Format("Unhandled data type filling numeric up down for type {0}", dbRead.GetDataTypeName(dbRead.GetOrdinal(sColumnName)).ToLower()));
+                }
+            }
+        }
     }
 }
