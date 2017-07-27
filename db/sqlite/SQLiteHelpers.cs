@@ -109,6 +109,10 @@ namespace naru.db.sqlite
                         sValue = dbRead.GetInt64(ColIndex).ToString();
                         break;
 
+                    case "datetime":
+                        sValue = dbRead.GetDateTime(ColIndex).ToString();
+                        break;
+
                     default:
                         throw new Exception("Unhandled data type.");
                 }
