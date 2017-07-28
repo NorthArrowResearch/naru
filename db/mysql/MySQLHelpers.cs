@@ -68,7 +68,7 @@ namespace naru.db.mysql
 
         public static void AddNParameter(ref MySqlCommand dbCom, ref CheckBox ctrl, ref NumericUpDown val, string sParameterName)
         {
-            MySqlParameter p = dbCom.Parameters.Add(sParameterName, MySqlDbType.DateTime);
+            MySqlParameter p = dbCom.Parameters.Add(sParameterName, MySqlDbType.Double);
             if (ctrl.Checked)
                 p.Value = val.Value;
             else
