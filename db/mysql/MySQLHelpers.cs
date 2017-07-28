@@ -10,11 +10,65 @@ namespace naru.db.mysql
 {
     class MySQLHelpers
     {
+        public enum ConnectionTestResults
+        {
+            OK,
+            ConnectionFail,
+            MissingServer,
+            MissingDatabase,
+            MissingUserName,
+            MissingPassword
+        }
+
         private const string RootConnectionStringMaster = "server={0};uid={1};pwd={2};database={3};Port={4}";
 
-        public static string BuildConnectionString(string sServer, string sDatabase, string sUserName, string sPassword, string sPort)
+        public static string BuildConnectionString(string sServer, string sDatabase, string sUserName, string sPassword, ushort nPort)
         {
-            return string.Format(RootConnectionStringMaster, sServer, sUserName, sPassword, sDatabase, sPort);
+            return string.Format(RootConnectionStringMaster, sServer, sUserName, sPassword, sDatabase, nPort.ToString());
+        }
+
+        public static ConnectionTestResults TestConnection(string sServer, string sDatabase, string sUserName, string sPassword, ushort nPort, string sqlTest)
+        {
+            ConnectionTestResults eResult = ConnectionTestResults.ConnectionFail;
+
+            if (string.IsNullOrEmpty(sServer))
+                return ConnectionTestResults.MissingServer;
+
+            if (string.IsNullOrEmpty(sDatabase))
+                return ConnectionTestResults.MissingDatabase;
+
+            if (string.IsNullOrEmpty(sUserName))
+                return ConnectionTestResults.MissingUserName;
+
+            if (string.IsNullOrEmpty(sPassword))
+                return ConnectionTestResults.MissingPassword;
+
+            try
+            {
+                string sCon = naru.db.mysql.MySQLHelpers.BuildConnectionString(sServer, sDatabase, sUserName, sPassword, nPort);
+                using (MySql.Data.MySqlClient.MySqlConnection dbCon = new MySql.Data.MySqlClient.MySqlConnection(sCon))
+                {
+                    dbCon.Open();
+
+                    // Query that should be successful but return no rows
+                    MySql.Data.MySqlClient.MySqlCommand dbCom = new MySql.Data.MySqlClient.MySqlCommand(sqlTest, dbCon);
+                    dbCom.ExecuteReader();
+                    eResult = ConnectionTestResults.OK;
+                }
+            }
+            catch (Exception ex)
+            {
+                eResult = ConnectionTestResults.ConnectionFail;
+                ex.Data["MySQL Server"] = sServer;
+                ex.Data["MySQL Port"] = nPort.ToString();
+                ex.Data["MySQL Database"] = sDatabase;
+                ex.Data["MySQL UserName"] = sUserName;
+                ex.Data["MySQL Password"] = sPassword;
+                ex.Data["Test SQL"] = sqlTest;
+                throw;
+            }
+
+            return eResult;
         }
 
         public static void AddParameter(ref MySqlCommand dbCom, ref TextBox ctrl, string sParameterName)
