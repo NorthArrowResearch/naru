@@ -13,7 +13,10 @@ namespace naru.db.sqlite
         public System.IO.FileInfo FilePath { get; internal set; }
         public string SQLVersion { get; internal set; }
         public int MinimumSupportedVersion { get; internal set; }
-        private string DatabaseStructureSQLFileName { get; set; }
+
+        private System.IO.DirectoryInfo diDBFolder { get; set; }
+        private System.IO.FileInfo fiDBStructureSQL { get; set; }
+        private Dictionary<long, System.IO.FileInfo> UpdateSQLFiles { get; set; }
 
         public enum UpgradeStates
         {
@@ -71,21 +74,21 @@ namespace naru.db.sqlite
             }
         }
 
-        /// <summary>
-        /// The full absolute path to the file containing the SQL that creates all the tables and views
-        /// </summary>
-        /// <remarks>This is the executable folder with the Database structure file name appended. If the
-        /// file name has a folder as part of it (.e.g. "Database\myfile.sql") then it is included in this path</remarks>
-        public string DatabaseStructureFilePath
-        {
-            get
-            {
-                string sPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), DatabaseStructureSQLFileName);
-                if (!System.IO.File.Exists(sPath))
-                    throw new Exception("The database structure file does not exist.");
-                return sPath;
-            }
-        }
+        ///// <summary>
+        ///// The full absolute path to the file containing the SQL that creates all the tables and views
+        ///// </summary>
+        ///// <remarks>This is the executable folder with the Database structure file name appended. If the
+        ///// file name has a folder as part of it (.e.g. "Database\myfile.sql") then it is included in this path</remarks>
+        //public string DatabaseStructureFilePath
+        //{
+        //    get
+        //    {
+        //        string sPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), DatabaseStructureSQLFileName);
+        //        if (!System.IO.File.Exists(sPath))
+        //            throw new Exception("The database structure file does not exist.");
+        //        return sPath;
+        //    }
+        //}
 
         /// <summary>
         /// Return a connection string from a file path
@@ -105,21 +108,46 @@ namespace naru.db.sqlite
         /// <param name="sqlVersionQuery">SQL command that is used to determine the version of the database</param>
         /// <param name="nMinSupporterVersion">Minimum version of the database supported for upgrade</param>
         /// <param name="sDBStructureSQL">Relative path from the software executable where the database structure SQL file is stored (e.g. "Database\myfile.sql")</param>
-        /// <param name="sDBDataWildcard">Wildcard used to find lookup data SQL files in the same folder as the structure SQL file</param>
+        /// <param name="sDBUpdateSQL">Relative path from the software executable where the database SQL update files are stored (e.g. Database\update_*.sql")</param>
         /// <remarks>This constructor is also used during the creation of new databases.
         /// So do not check for the existance of the file on disck because it might not be present yet.
         /// 
         /// Each of the data SQL files must have the corresponding database table name after this DataWildcard.
         /// For example if the wildcard is "_data_" an example file name might be mytool_data_MyTable.sql</remarks>
-        public DBManager(string sFilePath, string sqlVersionQuery, int nMinSupporterVersion, string sDBStructureSQL)
+        public DBManager(string sFilePath, string sqlVersionQuery, int nMinSupporterVersion, string sDBFolder, string sDBStructure, string sDBUpdate)
         {
             if (string.IsNullOrEmpty(sFilePath))
                 throw new Exception("Empty database file path");
 
             SQLVersion = sqlVersionQuery;
             FilePath = new System.IO.FileInfo(sFilePath);
-            DatabaseStructureSQLFileName = sDBStructureSQL;
-            MinimumSupportedVersion = nMinSupporterVersion;
+
+            diDBFolder = new System.IO.DirectoryInfo(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), sDBFolder));
+            if (!diDBFolder.Exists)
+            {
+                Exception ex = new Exception("The database SQL folder does not exist alongside the software executable.");
+                ex.Data["Folder"] = diDBFolder.FullName;
+                throw ex;
+            }
+
+            fiDBStructureSQL = new System.IO.FileInfo(System.IO.Path.Combine(diDBFolder.FullName, sDBStructure));
+            if (!fiDBStructureSQL.Exists)
+            {
+                Exception ex = new Exception("The database structure SQL folder does not exist.");
+                ex.Data["DB Structure File"] = fiDBStructureSQL.FullName;
+                throw ex;
+            }
+
+            Regex re = new Regex(@"(\d{3})\.sql$");
+            foreach (System.IO.FileInfo fiFile in diDBFolder.GetFiles(sDBUpdate, System.IO.SearchOption.TopDirectoryOnly))
+            {
+                Match ma = re.Match(fiFile.FullName);
+                if (ma is Match && ma.Length == 2)
+                {
+                    long nVersion = long.Parse(ma.Groups[1].Value);
+                    UpdateSQLFiles[nVersion] = fiFile;
+                }
+            }
         }
 
         public int GetDBVersion()
@@ -162,8 +190,7 @@ namespace naru.db.sqlite
             try
             {
                 // Load the structure and data SQL first so any problems occur before DB created on disk
-                string structurePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), DatabaseStructureSQLFileName);
-                string sqlDBStructure = System.IO.File.ReadAllText(structurePath);
+                string sqlDBStructure = System.IO.File.ReadAllText(fiDBStructureSQL.FullName);
 
                 // Create the empty SQLite database file
                 SQLiteConnection.CreateFile(FilePath.FullName);
@@ -184,7 +211,7 @@ namespace naru.db.sqlite
             catch (Exception ex)
             {
                 ex.Data["Database File Path"] = FilePath.FullName;
-                ex.Data["Database Structure File Path"] = DatabaseStructureFilePath;
+                ex.Data["Database Structure File Path"] = fiDBStructureSQL.FullName;
                 throw;
             }
         }
@@ -197,26 +224,28 @@ namespace naru.db.sqlite
             using (SQLiteConnection dbCon = new SQLiteConnection(ConnectionString))
             {
                 dbCon.Open();
+
+                // Turn referential integrity off
+                SQLiteCommand dbCom = new SQLiteCommand("PRAGMA foreign_keys = off;", dbCon);
+                dbCom.ExecuteNonQuery();
+
                 SQLiteTransaction dbTrans = dbCon.BeginTransaction();
 
                 try
                 {
                     int nCurrentVersion = GetDBVersion();
-                    while (nCurrentVersion < nRequiredVersion)
+                    for (int nVersion = nCurrentVersion; nVersion <= nRequiredVersion; nVersion++)
                     {
-                        int nNextVersion = nCurrentVersion + 1;
+                        // Load the update from file and execute the SQL commands
+                        string sqlUpdate = System.IO.File.ReadAllText(UpdateSQLFiles[nVersion].FullName);
 
-                        Upgrade(ref dbTrans, nNextVersion);
-
-                        // Store the new database version
-                        SQLiteCommand dbCom = new SQLiteCommand("UPDATE VersionInfo SET ValueInfo = @ValueInfo WHERE Key = @Key", dbTrans.Connection, dbTrans);
-                        dbCom.Parameters.AddWithValue("ValueInfo", nNextVersion.ToString());
-                        dbCom.Parameters.AddWithValue("Key", "DatabaseVersion");
+                        dbCom = new SQLiteCommand(sqlUpdate, dbTrans.Connection, dbTrans);
                         dbCom.ExecuteNonQuery();
-                        
-                        // Increment the database version and continue
-                        nCurrentVersion = nNextVersion;
                     }
+
+                    // Turn referential integrity back on
+                    dbCom = new SQLiteCommand("PRAGMA foreign_keys = on;", dbCon);
+                    dbCom.ExecuteNonQuery();
 
                     dbTrans.Commit();
                 }
@@ -227,8 +256,5 @@ namespace naru.db.sqlite
                 }
             }
         }
-
-        protected abstract void Upgrade(ref SQLiteTransaction dbTrans, int nRequiredVersion);
-        protected abstract void BaseInstall(ref SQLiteTransaction dbTrans);
     }
 }
