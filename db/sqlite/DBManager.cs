@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace naru.db.sqlite
 {
-    public abstract class DBManager
+    public class DBManager
     {
         public System.IO.FileInfo FilePath { get; internal set; }
         public string SQLVersion { get; internal set; }
@@ -107,8 +107,9 @@ namespace naru.db.sqlite
         /// <param name="sFilePath">Full absolute file path to a SQLite database</param>
         /// <param name="sqlVersionQuery">SQL command that is used to determine the version of the database</param>
         /// <param name="nMinSupporterVersion">Minimum version of the database supported for upgrade</param>
-        /// <param name="sDBStructureSQL">Relative path from the software executable where the database structure SQL file is stored (e.g. "Database\myfile.sql")</param>
-        /// <param name="sDBUpdateSQL">Relative path from the software executable where the database SQL update files are stored (e.g. Database\update_*.sql")</param>
+        /// <param name="sDBFolder">Folder name relative to the executable where the database structure and upgrade files can be found. e.g. Database</param>
+        /// <param name="sDBStructure">Name of the SQL file that contains the latest database structure definition (e.g. latest.sql)</param>
+        /// <param name="sDBUpdate">Search pattern for database update SQL files. Must use Windows wildcards (e.g. \update_*.sql)</param>
         /// <remarks>This constructor is also used during the creation of new databases.
         /// So do not check for the existance of the file on disck because it might not be present yet.
         /// 
@@ -138,11 +139,12 @@ namespace naru.db.sqlite
                 throw ex;
             }
 
+            UpdateSQLFiles = new Dictionary<long, System.IO.FileInfo>();
             Regex re = new Regex(@"(\d{3})\.sql$");
             foreach (System.IO.FileInfo fiFile in diDBFolder.GetFiles(sDBUpdate, System.IO.SearchOption.TopDirectoryOnly))
             {
                 Match ma = re.Match(fiFile.FullName);
-                if (ma is Match && ma.Length == 2)
+                if (ma is Match && ma.Groups.Count == 2)
                 {
                     long nVersion = long.Parse(ma.Groups[1].Value);
                     UpdateSQLFiles[nVersion] = fiFile;
@@ -165,21 +167,6 @@ namespace naru.db.sqlite
                     throw new Exception("Failed to convert database version to integer value");
             }
             return nVersion;
-        }
-
-        public bool RequiresUpdrade(int nRequiredVersion)
-        {
-            int nCurrentVersion = GetDBVersion();
-
-            if (nCurrentVersion > nRequiredVersion)
-            {
-                Exception ex = new Exception("The current database version is greater than the required verison");
-                ex.Data["Current Version"] = nCurrentVersion;
-                ex.Data["Required Version"] = nRequiredVersion;
-                throw ex;
-            }
-
-            return nRequiredVersion > nCurrentVersion;
         }
 
         /// <summary>
@@ -216,10 +203,34 @@ namespace naru.db.sqlite
             }
         }
 
+        /// <summary>
+        /// Updates an existing database to the argument required version.
+        /// </summary>
+        /// <param name="nRequiredVersion">The required version of the end result</param>
+        /// <remarks>
+        /// 1. Does nothing if the database is already at the required version.
+        /// 2. Throws error if one or more upgrade files are missing.
+        /// 3. Turns off referential integrity until all upgrades are complete.
+        /// 4. Performs upgrades in sequential order until required version is achieved.
+        /// 5. Rolls back database if anything goes wrong</remarks>
         public void Upgrade(int nRequiredVersion)
         {
-            if (!RequiresUpdrade(nRequiredVersion))
+            if (CheckUpgradeStatus(nRequiredVersion) != UpgradeStates.RequiresUpgrade)
                 return;
+
+            // Verify that all required update files exist **before** attempting any changes
+            int nCurrentVersion = GetDBVersion();
+            List<int> MissingVersions = new List<int>();
+            for (int nVersion = nCurrentVersion + 1; nVersion <= nRequiredVersion; nVersion++)
+                if (!UpdateSQLFiles.ContainsKey(nVersion))
+                    MissingVersions.Add(nVersion);
+
+            if (MissingVersions.Count > 0)
+            {
+                Exception ex = new Exception("One or more required update files are missing.");
+                ex.Data["Missing Versions"] = string.Join(",", MissingVersions.Select(x => x.ToString()).ToArray<string>());
+                throw ex;
+            }
 
             using (SQLiteConnection dbCon = new SQLiteConnection(ConnectionString))
             {
@@ -233,8 +244,7 @@ namespace naru.db.sqlite
 
                 try
                 {
-                    int nCurrentVersion = GetDBVersion();
-                    for (int nVersion = nCurrentVersion; nVersion <= nRequiredVersion; nVersion++)
+                    for (int nVersion = nCurrentVersion + 1; nVersion <= nRequiredVersion; nVersion++)
                     {
                         // Load the update from file and execute the SQL commands
                         string sqlUpdate = System.IO.File.ReadAllText(UpdateSQLFiles[nVersion].FullName);
@@ -243,16 +253,18 @@ namespace naru.db.sqlite
                         dbCom.ExecuteNonQuery();
                     }
 
-                    // Turn referential integrity back on
-                    dbCom = new SQLiteCommand("PRAGMA foreign_keys = on;", dbCon);
-                    dbCom.ExecuteNonQuery();
-
                     dbTrans.Commit();
                 }
                 catch (Exception ex)
                 {
                     dbTrans.Rollback();
                     throw;
+                }
+                finally
+                {
+                    // Turn referential integrity back on
+                    dbCom = new SQLiteCommand("PRAGMA foreign_keys = on;", dbCon);
+                    dbCom.ExecuteNonQuery();
                 }
             }
         }
