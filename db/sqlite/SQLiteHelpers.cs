@@ -22,7 +22,7 @@ namespace naru.db.sqlite
             return GetScalarID(ref dbCom);
         }
 
-        public static long GetScalarID( string sDBCon, string sSQL)
+        public static long GetScalarID(string sDBCon, string sSQL)
         {
             long nResult = 0;
             using (SQLiteConnection dbCon = new SQLiteConnection(sDBCon))
@@ -183,6 +183,11 @@ namespace naru.db.sqlite
             return p;
         }
 
+        public static long GetLastInsertID(ref SQLiteTransaction dbTrans)
+        {
+            SQLiteCommand dbCom = new SQLiteCommand("SELECT last_insert_rowid()", dbTrans.Connection, dbTrans);
+            return (long)dbCom.ExecuteScalar();
+        }
     }
 
 }
