@@ -22,6 +22,12 @@ namespace naru.db.sqlite
             return GetScalarID(ref dbCom);
         }
 
+        public static long GetScalarID(SQLiteTransaction dbTrans, string sSQL)
+        {
+            SQLiteCommand dbCom = new SQLiteCommand(sSQL, dbTrans.Connection, dbTrans);
+            return GetScalarID(ref dbCom);
+        }
+
         public static long GetScalarID(string sDBCon, string sSQL)
         {
             long nResult = 0;
