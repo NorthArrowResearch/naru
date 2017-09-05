@@ -173,6 +173,21 @@ namespace naru.db.sqlite
             return p;
         }
 
+        public static SQLiteParameter AddDateTimeParameterN(ref SQLiteCommand dbCom, DateTime? fValue, string sParameterName)
+        {
+            System.Diagnostics.Debug.Assert(!dbCom.Parameters.Contains(sParameterName), "The SQL command already contains a parameter with this name.");
+
+            SQLiteParameter p = dbCom.Parameters.Add(sParameterName, System.Data.DbType.DateTime);
+            if (fValue.HasValue)
+                p.Value = fValue.Value;
+            else
+            {
+                p.Value = DBNull.Value;
+            }
+
+            return p;
+        }
+
         public static SQLiteParameter AddLongParameterN(ref SQLiteCommand dbCom, long? nValue, string sParameterName)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sParameterName), "The parameter name cannot be empty.");
