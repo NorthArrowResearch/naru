@@ -52,5 +52,30 @@ namespace naru.ui
 
             return eResult;
         }
+
+        public static DialogResult BrowseOpenFile(ref System.Windows.Forms.TextBox txt, string sFormTitle, string sFilter)
+        {
+            OpenFileDialog frm = new OpenFileDialog();
+            frm.Title = sFormTitle;
+            frm.AddExtension = true;
+            frm.Filter = sFilter;
+            frm.CheckFileExists = true;
+            frm.AddExtension = true;
+
+            if (!string.IsNullOrEmpty(txt.Text))
+            {
+                string sDirectory = System.IO.Path.GetDirectoryName(txt.Text);
+                if (!string.IsNullOrEmpty(sDirectory) && System.IO.Directory.Exists(sDirectory))
+                    frm.InitialDirectory = sDirectory;
+
+                frm.FileName = System.IO.Path.GetFileNameWithoutExtension(txt.Text);
+            }
+
+            DialogResult eResult = frm.ShowDialog();
+            if (eResult == System.Windows.Forms.DialogResult.OK)
+                txt.Text = frm.FileName;
+
+            return eResult;
+        }
     }
 }
