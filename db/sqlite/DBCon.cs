@@ -58,6 +58,11 @@ namespace naru.db.sqlite
             }
         }
 
+        public static string BuildConnectionString(string sDBPath)
+        {
+            return string.Format(m_sRootConnectionStringLocal, sDBPath);
+        }
+
         public static void CloseDatabase()
         {
             ConnectionString = string.Empty;
