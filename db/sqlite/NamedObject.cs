@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data.SQLite;
 
 namespace naru.db.sqlite
@@ -26,6 +27,38 @@ namespace naru.db.sqlite
 
             // Attach the SQL statement to the combo box to enabled reloading
             cbo.Tag = sSQL;
+
+            return cbo.Items.Count;
+        }
+
+        public static int LoadComboColumnWithListItems(ref System.Windows.Forms.DataGridViewComboBoxColumn cbo, string sSQL, bool bAddSelectItem)
+        {
+            if (cbo == null)
+                return 0;
+
+            cbo.Items.Clear();
+
+            BindingList<naru.db.NamedObject> lItems = new BindingList<naru.db.NamedObject>();
+            using (System.Data.SQLite.SQLiteConnection dbCon = new System.Data.SQLite.SQLiteConnection(DBCon.ConnectionString))
+            {
+                dbCon.Open();
+
+                System.Data.SQLite.SQLiteCommand dbCom = new System.Data.SQLite.SQLiteCommand(sSQL, dbCon);
+                System.Data.SQLite.SQLiteDataReader dbRead = dbCom.ExecuteReader();
+                while (dbRead.Read())
+                {
+                    Int64 nID = (Int64)dbRead.GetValue(0);
+                    lItems.Add(new naru.db.NamedObject((int)nID, dbRead.GetString(1)));
+                }
+            }
+
+            if (bAddSelectItem)
+                lItems.Add(new naru.db.NamedObject(0, "-- Select --"));
+
+            cbo.DataSource = lItems;
+            cbo.DisplayMember = "Name";
+            cbo.ValueMember = "ID";
+
             return cbo.Items.Count;
         }
 
