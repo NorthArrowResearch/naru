@@ -24,7 +24,17 @@ namespace naru.db.sqlite
                 }
             }
 
+            // Attach the SQL statement to the combo box to enabled reloading
+            cbo.Tag = sSQL;
             return cbo.Items.Count;
+        }
+
+        public static int LoadComboWithListItems(ref System.Windows.Forms.ComboBox cbo, long nSelectID = 0)
+        {
+            if (cbo.Tag is string && !string.IsNullOrEmpty(cbo.Tag.ToString()))
+                return LoadComboWithListItems(ref cbo, DBCon.ConnectionString, cbo.Tag.ToString(), nSelectID);
+            else
+                throw new Exception("The combo box does not have an SQL query string attached as tag. Use overloaded method before this one.");
         }
 
         public static void SelectItem(ref System.Windows.Forms.ComboBox cbo, long nID)
