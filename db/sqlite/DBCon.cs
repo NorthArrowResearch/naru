@@ -22,6 +22,13 @@ namespace naru.db.sqlite
 
         private static Dictionary<string, string> SessionSettings;
 
+        public static bool BackupRequiredOnClose { get; internal set; }
+
+        public static void ChangesMadeToDatabase()
+        {
+            BackupRequiredOnClose = true;
+        }
+
         public static DBCon Instance
         {
             get
