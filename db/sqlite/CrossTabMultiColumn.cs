@@ -58,7 +58,10 @@ namespace naru.db.sqlite
                         {
                             int colIndex = dCols[nColID] + Keycolumns.Count; // Don't forget that there's fixed columns before the data columns
                             System.Diagnostics.Debug.Assert(colIndex < dt.Columns.Count);
-                            dt.Rows[rowIndex].SetField<double>(colIndex, dbRead.GetDouble(dbRead.GetOrdinal("MetricValue")));
+                            if (!dbRead.IsDBNull(dbRead.GetOrdinal("MetricValue")))
+                            {
+                                dt.Rows[rowIndex].SetField<double>(colIndex, dbRead.GetDouble(dbRead.GetOrdinal("MetricValue")));
+                            }
                         }
 
                         foreach (Tuple<string,string> col in Keycolumns)
