@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -41,6 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="error\ExceptionBase.cs" />
+    <Compile Include="error\ExceptionUI.cs" />
+    <Compile Include="error\frmException.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="error\frmException.designer.cs">
+      <DependentUpon>frmException.cs</DependentUpon>
+    </Compile>
     <Compile Include="math\NumberFormatting.cs" />
     <Compile Include="os\Folder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -50,6 +59,11 @@
     <Compile Include="ui\Textbox.cs" />
     <Compile Include="web\web.cs" />
     <Compile Include="xml\XMLHelpers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="error\frmException.resx">
+      <DependentUpon>frmException.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
