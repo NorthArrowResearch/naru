@@ -51,6 +51,7 @@
       <DependentUpon>frmException.cs</DependentUpon>
     </Compile>
     <Compile Include="math\NumberFormatting.cs" />
+    <Compile Include="math\Statistics.cs" />
     <Compile Include="os\Folder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ui\DataGridViewHelpers.cs" />
