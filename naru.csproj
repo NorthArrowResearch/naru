@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="db\NamedObject.cs" />
     <Compile Include="error\ExceptionBase.cs" />
     <Compile Include="error\ExceptionUI.cs" />
     <Compile Include="error\frmException.cs">
@@ -58,6 +59,7 @@
     <Compile Include="ui\ProgressBar.cs" />
     <Compile Include="ui\SortableBindingList.cs" />
     <Compile Include="ui\Textbox.cs" />
+    <Compile Include="ui\UIHelpers.cs" />
     <Compile Include="web\web.cs" />
     <Compile Include="xml\XMLHelpers.cs" />
   </ItemGroup>

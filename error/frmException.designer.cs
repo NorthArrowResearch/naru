@@ -1,4 +1,4 @@
-﻿namespace error
+﻿namespace naru.error
 {
     partial class frmException
     {

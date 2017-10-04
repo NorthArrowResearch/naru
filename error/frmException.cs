@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace error
+namespace naru.error
 {
     public partial class frmException : Form
     {

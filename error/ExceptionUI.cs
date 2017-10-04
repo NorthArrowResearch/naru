@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace error
+namespace naru.error
 {
     public class ExceptionUI : ExceptionBase
     {

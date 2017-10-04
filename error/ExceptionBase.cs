@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace error
+namespace naru.error
 {
     public abstract class ExceptionBase
     {
