@@ -88,7 +88,7 @@ namespace naru.math
             {
                 // No decimal found. We're into powers of 10 here.
                 dynamic numberOfTens = 0;
-                while (numberAsString(numberAsString.Length - numberOfTens - 1) == "0")
+                while (numberAsString[numberAsString.Length - numberOfTens - 1] == "0")
                 {
                     numberOfTens += 1;
                 }
@@ -222,7 +222,7 @@ namespace naru.math
         {
             int nCount = 0;
             double fFilteredMean = FilteredMean(dValues, fStdDevThreshold, ref nCount);
-            return FilteredStandardDeviation(dValues, fStdDevThreshold, fFilteredMean, nFilteredCount);
+            return FilteredStandardDeviation(dValues, fStdDevThreshold, nFilteredCount);
         }
 
         /// <summary>

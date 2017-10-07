@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace naru.math
 {
@@ -1524,32 +1521,6 @@ namespace naru.math
 
         }
 
-        //public static LinearUnits GetLinearUnits(ILinearUnit eLinearUnits)
-        //{
-
-        //    switch (eLinearUnits.Name.ToLower)
-        //    {
-        //        case "meter":
-        //        case "metre":
-
-        //            return LinearUnits.m;
-        //        case "kilometer":
-        //        case "kilometre":
-
-        //            return LinearUnits.km;
-        //        case "feet":
-        //        case "us_feet":
-        //        case "ft":
-
-        //            return LinearUnits.ft;
-        //        default:
-        //            Exception ex = new Exception("Unhandled linear units");
-        //            ex.Data("Linear units") = eLinearUnits.Name;
-        //            throw ex;
-        //    }
-
-        //}
-
         public static AreaUnits GetAreaUnitsRaw(LinearUnits eLinearUnit)
         {
 
@@ -1734,14 +1705,6 @@ namespace naru.math
             }
         }
 
-        //public static LinearUnits GetLinearUnitsFromESRI(ESRI.ArcGIS.Geometry.ILinearUnit eESRILinearUnits)
-        //{
-
-        //    string sUnits = GISDataStructures.GetLinearUnitsAsString(eESRILinearUnits);
-        //    return GetLinearUnitsFromString(sUnits);
-
-        //}
-
         public static LinearUnits GetLinearUnitsFromString(string sLinearUnits)
         {
 
@@ -1780,7 +1743,6 @@ namespace naru.math
             return eResult;
         }
 
-
         public static void TestBench()
         {
             System.Diagnostics.Debug.Print("Converting 34.456 metres to kilometres: " + Convert(LinearUnits.m, LinearUnits.km, 34.456) + ", expecting 0.034456", 34.456);
@@ -1798,7 +1760,7 @@ namespace naru.math
             areaUnitsSet = System.Enum.GetValues(typeof(NumberFormatting.AreaUnits));
             NumberFormatting.AreaUnits eLinear = default(NumberFormatting.AreaUnits);
 
-          System.Diagnostics.Debug.Print("AREA CONVERSION TESTS {0}{0}", Environment.NewLine);
+            System.Diagnostics.Debug.Print("AREA CONVERSION TESTS {0}{0}", Environment.NewLine);
             double dblResult = 0;
             foreach (NumberFormatting.AreaUnits eLinear_loopVariable in areaUnitsSet)
             {
@@ -1842,7 +1804,7 @@ namespace naru.math
             volumeUnitsSet = System.Enum.GetValues(typeof(NumberFormatting.VolumeUnits));
             NumberFormatting.VolumeUnits eVolume = default(NumberFormatting.VolumeUnits);
 
-           System.Diagnostics.Debug.Print("{0}{0}VOLUME CONVERSION TESTS {0}{0}", Environment.NewLine);
+            System.Diagnostics.Debug.Print("{0}{0}VOLUME CONVERSION TESTS {0}{0}", Environment.NewLine);
 
             foreach (NumberFormatting.VolumeUnits eVolume_loopVariable in volumeUnitsSet)
             {
@@ -1885,44 +1847,6 @@ namespace naru.math
             //Debug.Assert(Math.Round(Convert(AreaUnits.sqm, AreaUnits.sqft, 11.3), 3) = 121.632)
             //Debug.Assert(Math.Round(Convert(AreaUnits.acre, AreaUnits.sqft, 11.3), 0) = 492228)
             //Debug.Assert(Math.Round(Convert(AreaUnits.sqin, AreaUnits.sqmm, 11.3), 3) = 7290.308)
-        }
-
-    }
-
-    /// <summary>
-    /// Use this class to display the linear units in a dropdownlist
-    /// </summary>
-    /// <remarks></remarks>
-    public class LinearUnitClass
-    {
-        private NumberFormatting.LinearUnits m_eLinearUnit;
-
-        private string m_sDisplayName;
-        public LinearUnitClass(string sDisplayName, NumberFormatting.LinearUnits eLinearUnit)
-        {
-            m_sDisplayName = sDisplayName;
-            m_eLinearUnit = eLinearUnit;
-        }
-
-        public LinearUnitClass(NumberFormatting.LinearUnits eLinearUnit)
-        {
-            m_sDisplayName = NumberFormatting.GetUnitsAsString(eLinearUnit);
-            m_eLinearUnit = eLinearUnit;
-        }
-
-        public NumberFormatting.LinearUnits LinearUnit
-        {
-            get { return m_eLinearUnit; }
-        }
-
-        public override string ToString()
-        {
-            return m_sDisplayName;
-        }
-
-        public object GetUnitsAsString(bool bParentheses = false)
-        {
-            return NumberFormatting.GetUnitsAsString(m_eLinearUnit, bParentheses);
         }
     }
 }
