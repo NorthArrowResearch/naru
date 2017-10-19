@@ -9,6 +9,8 @@ namespace naru.os
             if (string.IsNullOrEmpty(sDirectory) || !System.IO.Directory.Exists(sDirectory))
                 throw new Exception(string.Format("Invalid directory {0}", sDirectory));
 
+            sFileName = RemoveDangerousCharacters(sFileName);
+
             int nInteration = 0;
             string sCandidate = string.Empty;
             do
@@ -25,7 +27,7 @@ namespace naru.os
 
             return new System.IO.FileInfo(sCandidate);
         }
-  
+
         public string GetNewSafeDirectoryName(string sParent, string sRootName)
         {
             if (string.IsNullOrEmpty(sParent))
@@ -64,7 +66,7 @@ namespace naru.os
 
             return sResult;
         }
-        
+
         public static string RemoveDangerousCharacters(string sInput)
         {
             string sResult = sInput;
