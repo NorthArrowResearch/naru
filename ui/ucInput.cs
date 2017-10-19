@@ -65,7 +65,7 @@ namespace naru.ui
         {
             if (PathChanged != null)
             {
-                PathChanged(null, new PathEventArgs(Path));
+                PathChanged(null, new PathEventArgs(Path, "TODO Form title"));
             }
         }
 
@@ -78,7 +78,7 @@ namespace naru.ui
         {
             if (BrowseFile != null)
             {
-                BrowseFile(null, new PathEventArgs(Path));
+                BrowseFile(null, new PathEventArgs(Path, "TODO Form title"));
             }
         }
 
@@ -86,7 +86,7 @@ namespace naru.ui
         {
             if (SelectLayer != null)
             {
-                SelectLayer(null, new PathEventArgs(Path));
+                SelectLayer(null, new PathEventArgs(Path, "TODO Form title"));
             }
         }
     }

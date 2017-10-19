@@ -41,6 +41,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="UnitsNet, Version=3.77.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\UnitsNet.3.77.0\lib\net35\UnitsNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="db\NamedObject.cs" />
@@ -52,8 +56,6 @@
     <Compile Include="error\frmException.designer.cs">
       <DependentUpon>frmException.cs</DependentUpon>
     </Compile>
-    <Compile Include="math\LinearUnitsClass.cs" />
-    <Compile Include="math\NumberFormatting.cs" />
     <Compile Include="math\Statistics.cs" />
     <Compile Include="os\File.cs" />
     <Compile Include="os\Folder.cs" />
@@ -100,6 +102,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\AddToMap.png" />
   </ItemGroup>
   <ItemGroup>
