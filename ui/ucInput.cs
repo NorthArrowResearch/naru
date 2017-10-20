@@ -56,8 +56,8 @@ namespace naru.ui
             if (!System.Reflection.Assembly.GetEntryAssembly().FullName.ToLower().Contains("arcmap"))
             {
                 cmdSelectLayer.Visible = false;
+                txtPath.Width = cmdBrowse.Right - txtPath.Left;
                 cmdBrowse.Left = cmdSelectLayer.Left;
-                txtPath.Width += cmdSelectLayer.Width + (cmdSelectLayer.Left - cmdBrowse.Right);
             }
         }
 
