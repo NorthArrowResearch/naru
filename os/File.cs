@@ -6,7 +6,7 @@ namespace naru.os
     {
         public static System.IO.FileInfo GetNewSafeName(string sDirectory, string sFileName, string sExtension)
         {
-            if (string.IsNullOrEmpty(sDirectory) || !System.IO.Directory.Exists(sDirectory))
+            if (string.IsNullOrEmpty(sDirectory))
                 throw new Exception(string.Format("Invalid directory {0}", sDirectory));
 
             sFileName = RemoveDangerousCharacters(sFileName);
