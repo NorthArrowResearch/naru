@@ -95,7 +95,7 @@ namespace naru.ui
 
         public static DialogResult BrowseOpenRaster(ref System.Windows.Forms.TextBox txt, string sFormTitle)
         {
-            return BrowseOpenFile(ref txt, sFormTitle, "Raster Files (*.tif)|*.tif");
+            return BrowseOpenFile(ref txt, sFormTitle, "Raster Files (*.tif, *.img)|*.tif;*.img");
         }
     }
 }
