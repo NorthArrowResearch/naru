@@ -4,24 +4,17 @@
     {
         public static string WrapMessageWithNoun(string sMessageStart, string sNoun, string sMessageEnd)
         {
-            string sResult = sMessageStart;
+            sMessageStart = sMessageStart.Trim();
+
             if (!string.IsNullOrEmpty(sNoun))
             {
                 sNoun = sNoun.Trim();
 
-                if (sNoun.ToLower().StartsWith("a") || sNoun.ToLower().StartsWith("e") || sNoun.ToLower().StartsWith("i") || sNoun.ToLower().StartsWith("o") || sNoun.ToLower().StartsWith("u"))
-                {
-                    sMessageStart = sMessageStart.Trim();
-                    string sStartSuffix = string.Empty;
-                    if (sMessageStart.EndsWith(" a"))
-                    {
-                        sMessageStart += "n";
-                    }
-                }
-                sResult += " " + sNoun + " ";
+                if (sMessageStart.ToLower().EndsWith("a") && System.Text.RegularExpressions.Regex.IsMatch(sNoun, "^[aeiou]", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                    sMessageStart += "n";
             }
-            sResult += " " + sMessageEnd.Trim();
 
+            string sResult = string.Format("{0} {1} {2}", sMessageStart, sNoun, sMessageEnd).Replace("  ", " ");
             return sResult;
         }
     }
