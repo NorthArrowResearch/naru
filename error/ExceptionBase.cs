@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace naru.error
 {
@@ -26,13 +27,30 @@ namespace naru.error
             {
                 // At least one more exception level to report, so make it clear where the break is.
                 sMessage += "------------------------------------------------";
-                sMessage += Environment.NewLine + "EXCEPTION";
+                sMessage += Environment.NewLine + "EXCEPTION" + Environment.NewLine;
             }
-            sMessage += Environment.NewLine + ex.Message;
+
+            sMessage += ex.Message;
+
             if (!string.IsNullOrEmpty(ex.StackTrace))
             {
                 sMessage += Environment.NewLine + " --- Stacktrace --- ";
-                sMessage += Environment.NewLine + ex.StackTrace;
+                // The stack trace needs to remove the start of file paths that refer to the 
+                // computer on which the code was compiled. Important!!!! For this to work, 
+                // the top level namespace of the project needs to match the folder in which
+                // the code is located on the computer on which it is built.
+                Type myType = typeof(ExceptionBase);
+                string sName = myType.Namespace.ToString().Substring(0, myType.Namespace.ToString().IndexOf("."));
+                string sRegEx = string.Format("[A-Z]:[\\/]*.*{0}", sName);
+                Regex theRegEx = new Regex(sRegEx);
+                string sStackTrace = ex.StackTrace;
+                Match theMatch = theRegEx.Match(ex.StackTrace);
+                if (theMatch.Groups.Count > 0 && theMatch.Length > 0)
+                    sStackTrace = sStackTrace.Replace(theMatch.Groups[0].Value.ToString(), "");
+                else
+                    sStackTrace = ex.StackTrace;
+
+                sMessage += Environment.NewLine + sStackTrace;
             }
 
             if (ex.Data.Contains("Parameters"))

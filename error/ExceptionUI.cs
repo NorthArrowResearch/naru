@@ -16,8 +16,8 @@ namespace naru.error
         public static void HandleException(System.Exception ex, string UIMessage)
         {
             string sMessage = GetExceptionInformation(ex);
-            sMessage += "Windows: " + Environment.OSVersion + Environment.NewLine;
-            sMessage += "Date: " + DateTime.Now.ToString() + Environment.NewLine;
+            sMessage += Environment.NewLine + "Windows: " + Environment.OSVersion;
+            sMessage += Environment.NewLine + "Date: " + DateTime.Now.ToString();
             //
             // Ensure the wait cursor is reverted back to the default cursor before showing any message box
             //
@@ -31,7 +31,7 @@ namespace naru.error
 
             Debug.WriteLine(sMessage);
             Debug.WriteLine(DateTime.Now);
-            frmException myFrm = new frmException(string.Empty, sMessage);
+            frmException myFrm = new frmException(UIMessage, sMessage);
             myFrm.ShowDialog();
         }
 

@@ -82,9 +82,8 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.TextBox txtPath;
         private System.Windows.Forms.Button cmdBrowse;
         private System.Windows.Forms.Button cmdSelectLayer;
+        protected System.Windows.Forms.TextBox txtPath;
     }
 }

@@ -39,7 +39,7 @@ namespace naru.error
 
         private void ExceptionForm_Load(object sender, EventArgs e)
         {
-            lblException.Text = String.Format("A {0} occured", _sType);
+            lblException.Text = _sType;
             txtErrorMessage.Text = _sFormattedException;
             int iWidth = lblException.Width + btnOK.Width + 200;
             if (iWidth < MinimumSize.Width)
