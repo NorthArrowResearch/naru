@@ -66,6 +66,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ui\DataGridViewHelpers.cs" />
+    <Compile Include="ui\frmMsgBoxWithCheckbox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ui\frmMsgBoxWithCheckbox.Designer.cs">
+      <DependentUpon>frmMsgBoxWithCheckbox.cs</DependentUpon>
+    </Compile>
     <Compile Include="ui\PathEventArgs.cs" />
     <Compile Include="ui\ProgressBar.cs" />
     <Compile Include="ui\SortableBindingList.cs" />
@@ -93,6 +99,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ui\frmMsgBoxWithCheckbox.resx">
+      <DependentUpon>frmMsgBoxWithCheckbox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ui\ucOutput.resx">
       <DependentUpon>ucOutput.cs</DependentUpon>
