@@ -52,6 +52,10 @@ namespace naru.ui
 
         private void ucInput_Load(object sender, EventArgs e)
         {
+            // Needed by the Visual Studio form designer
+            if (System.Reflection.Assembly.GetEntryAssembly() == null)
+                return;
+
             // Hide select layer button when ArcMap is not the parent executable
             if (!System.Reflection.Assembly.GetEntryAssembly().FullName.ToLower().Contains("arcmap"))
             {
