@@ -42,6 +42,7 @@
             this.txtPath.ReadOnly = true;
             this.txtPath.Size = new System.Drawing.Size(100, 20);
             this.txtPath.TabIndex = 0;
+            this.txtPath.TabStop = false;
             this.txtPath.TextChanged += new System.EventHandler(this.txtPath_TextChanged);
             // 
             // cmdSelectLayer
