@@ -53,7 +53,7 @@ namespace naru.ui
             return eResult;
         }
 
-        public static DialogResult BrowseSaveRaster(ref TextBox txt, string sFormTitle, string sDefaultPath = "")
+        public static DialogResult BrowseSaveRaster(TextBox txt, string sFormTitle, string sDefaultPath = "")
         {
             return BrowseSaveFile(ref txt, sFormTitle, "Rasters (*.tif)|*.tif");
         }
@@ -88,12 +88,12 @@ namespace naru.ui
             return eResult;
         }
 
-        public static DialogResult BrowseOpenVector(ref System.Windows.Forms.TextBox txt, string sFormTitle)
+        public static DialogResult BrowseOpenVector(System.Windows.Forms.TextBox txt, string sFormTitle)
         {
             return BrowseOpenFile(ref txt, sFormTitle, "ShapeFiles (*.shp)|*.shp");
         }
 
-        public static DialogResult BrowseOpenRaster(ref System.Windows.Forms.TextBox txt, string sFormTitle)
+        public static DialogResult BrowseOpenRaster(System.Windows.Forms.TextBox txt, string sFormTitle)
         {
             return BrowseOpenFile(ref txt, sFormTitle, "Raster Files (*.tif, *.img)|*.tif;*.img");
         }

@@ -8,7 +8,7 @@ namespace naru.os
 {
     public class Folder
     {
-        public static DialogResult BrowseFolder(ref TextBox txt, string sFormDescription, string sInitialDir)
+        public static DialogResult BrowseFolder(TextBox txt, string sFormDescription, string sInitialDir)
         {
             FolderBrowserDialog frm = new FolderBrowserDialog();
             frm.Description = sFormDescription;
