@@ -6,9 +6,9 @@ using System.Xml;
 
 namespace naru.xml
 {
-    class XMLHelpers
+    public class XMLHelpers
     {
-        public static XmlAttribute AddAttribute(ref XmlDocument xmlDoc, ref XmlNode nod, string sAttributeName, string sAttributeValue)
+        public static XmlAttribute AddAttribute(XmlDocument xmlDoc, XmlNode nod, string sAttributeName, string sAttributeValue)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sAttributeName), "The XML attribute name cannot be empty.");
 
@@ -18,7 +18,7 @@ namespace naru.xml
             return att;
         }
 
-        public static XmlNode AddNode(ref XmlDocument xmlDoc, ref XmlNode nodParent, string sNodeName)
+        public static XmlNode AddNode(XmlDocument xmlDoc, XmlNode nodParent, string sNodeName)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sNodeName), "The XML node name cannot be empty.");
             XmlNode nod = xmlDoc.CreateElement(sNodeName);
@@ -26,7 +26,7 @@ namespace naru.xml
             return nod;
         }
 
-        public static XmlNode AddNode(ref XmlDocument xmlDoc, ref XmlNode nodParent, string sNodeName, string sInnerText)
+        public static XmlNode AddNode(XmlDocument xmlDoc, XmlNode nodParent, string sNodeName, string sInnerText)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sNodeName), "The XML node name cannot be empty.");
             XmlNode nod = xmlDoc.CreateElement(sNodeName);
