@@ -93,5 +93,12 @@ namespace naru.ui
                 SelectLayer(null, new PathEventArgs(Path, "TODO Form title"));
             }
         }
+
+        public void ClearSelectedItem()
+        {
+            txtPath.TextChanged -= txtPath_TextChanged;
+            txtPath.Text = string.Empty;
+            txtPath.TextChanged += txtPath_TextChanged;
+        }
     }
 }
