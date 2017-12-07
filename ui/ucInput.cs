@@ -5,6 +5,7 @@ namespace naru.ui
 {
     public partial class ucInput : UserControl
     {
+        public string Noun { get; internal set; }
         public bool RequiredInput { get; internal set; }
 
         public event EventHandler<PathEventArgs> PathChanged;
@@ -31,8 +32,9 @@ namespace naru.ui
             InitializeComponent();
         }
 
-        public void Initialize(System.IO.FileInfo fiPath, bool bRequiredInput)
+        public void Initialize(string sNoun, System.IO.FileInfo fiPath, bool bRequiredInput)
         {
+            Noun = sNoun;
             if (fiPath is System.IO.FileInfo)
             {
                 Init(fiPath.FullName, bRequiredInput);
@@ -69,7 +71,7 @@ namespace naru.ui
         {
             if (PathChanged != null)
             {
-                PathChanged(null, new PathEventArgs(Path, "TODO Form title"));
+                PathChanged(null, new PathEventArgs(Path, Noun));
             }
         }
 
@@ -82,7 +84,7 @@ namespace naru.ui
         {
             if (BrowseFile != null)
             {
-                BrowseFile(null, new PathEventArgs(Path, "TODO Form title"));
+                BrowseFile(null, new PathEventArgs(Path, string.Format("Specify {0}", Noun)));
             }
         }
 
@@ -90,7 +92,7 @@ namespace naru.ui
         {
             if (SelectLayer != null)
             {
-                SelectLayer(null, new PathEventArgs(Path, "TODO Form title"));
+                SelectLayer(null, new PathEventArgs(Path, string.Format("Select {0} Map Layer", Noun)));
             }
         }
 
