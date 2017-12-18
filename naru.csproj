@@ -92,6 +92,9 @@
     <Compile Include="ui\frmMsgBoxWithCheckbox.Designer.cs">
       <DependentUpon>frmMsgBoxWithCheckbox.cs</DependentUpon>
     </Compile>
+    <Compile Include="ui\MenuButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ui\PathEventArgs.cs" />
     <Compile Include="ui\ProgressBar.cs" />
     <Compile Include="ui\SortableBindingList.cs" />
