@@ -10,11 +10,13 @@ namespace naru.ui
     {
         public System.IO.FileInfo Path { get; internal set; }
         public string FormTitle { get; internal set; }
+        public IntPtr hWndParent { get; internal set; }
 
-        public PathEventArgs(System.IO.FileInfo fiPath, string sFormTitle) : base()
+        public PathEventArgs(System.IO.FileInfo fiPath, string sFormTitle, IntPtr ParentWindowHandle) : base()
         {
             Path = fiPath;
             FormTitle = sFormTitle;
+            hWndParent = ParentWindowHandle;
         }
     }
 }
