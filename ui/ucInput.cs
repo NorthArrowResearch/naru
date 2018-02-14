@@ -27,6 +27,25 @@ namespace naru.ui
             }
         }
 
+
+        public bool ReadOnly
+        {
+            get
+            {
+                return cmdBrowse.Visible;
+            }
+            set
+            {
+                cmdBrowse.Visible = !value;
+                cmdSelectLayer.Visible = !value;
+
+                if (value)
+                {
+                    txtPath.Width = txtPath.Width + cmdSelectLayer.Right - txtPath.Right;
+                }
+            }
+        }
+
         public ucInput()
         {
             InitializeComponent();
