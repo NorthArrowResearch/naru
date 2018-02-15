@@ -28,22 +28,11 @@ namespace naru.ui
         }
 
 
-        public bool ReadOnly
+        public void SetReadOnly()
         {
-            get
-            {
-                return cmdBrowse.Visible;
-            }
-            set
-            {
-                cmdBrowse.Visible = !value;
-                cmdSelectLayer.Visible = !value;
-
-                if (value)
-                {
-                    txtPath.Width = txtPath.Width + cmdSelectLayer.Right - txtPath.Right;
-                }
-            }
+            cmdBrowse.Visible = false;
+            cmdSelectLayer.Visible = false;
+            txtPath.Width += cmdSelectLayer.Right - txtPath.Right;
         }
 
         public ucInput()
