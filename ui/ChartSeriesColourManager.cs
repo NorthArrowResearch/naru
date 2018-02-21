@@ -82,8 +82,6 @@ namespace naru.ui
                 ColorsInUse[colorKey] = sRandomColor;
                 return ColorTranslator.FromHtml(sRandomColor);
             }
-
-            return Color.Black;
         }
     }
 }
