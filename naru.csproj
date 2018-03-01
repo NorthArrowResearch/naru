@@ -86,6 +86,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ui\ChartSeriesColourManager.cs" />
+    <Compile Include="ui\Clipboard.cs" />
     <Compile Include="ui\DataGridViewHelpers.cs" />
     <Compile Include="ui\frmMsgBoxWithCheckbox.cs">
       <SubType>Form</SubType>
