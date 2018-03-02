@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace naru.ui
@@ -6,109 +7,76 @@ namespace naru.ui
     public partial class ucInput : UserControl
     {
         public string Noun { get; protected set; }
-        public bool RequiredInput { get; internal set; }
 
-        public event EventHandler<PathEventArgs> PathChanged;
-        public event EventHandler<PathEventArgs> BrowseFile;
-        public event EventHandler<PathEventArgs> SelectLayer;
-
-        public System.IO.FileInfo Path
+        private FileInfo _FullPath;
+        public FileInfo FullPath
         {
-            get
+            get { return _FullPath; }
+
+            set
             {
-                if (string.IsNullOrEmpty(txtPath.Text) || !System.IO.File.Exists(txtPath.Text))
+                if (_FullPath == null && value is FileInfo || _FullPath is FileInfo && !_FullPath.Equals(value))
                 {
-                    return null;
-                }
-                else
-                {
-                    return new System.IO.FileInfo(txtPath.Text);
+                    _FullPath = value;
+                    if (PathChanged != null)
+                    {
+                        PathChanged(null, new PathEventArgs(_FullPath, Noun, this.Handle));
+                    }
                 }
             }
         }
 
-
-        public void SetReadOnly()
-        {
-            cmdBrowse.Visible = false;
-            cmdSelectLayer.Visible = false;
-            txtPath.Width += cmdSelectLayer.Right - txtPath.Right;
-        }
+        public event EventHandler<PathEventArgs> PathChanged;
+        public event EventHandler<PathEventArgs> Browse;
+        public event EventHandler<PathEventArgs> AddToMap;
 
         public ucInput()
         {
             InitializeComponent();
         }
 
-        public void Initialize(string sNoun, System.IO.FileInfo fiPath, bool bRequiredInput)
+        protected void InitializeExisting(string sNoun, System.IO.FileInfo fiPath, string relativePath)
         {
             Noun = sNoun;
-            if (fiPath is System.IO.FileInfo)
+            FullPath = fiPath;
+            txtPath.Text = relativePath;
+            cmdBrowse.Visible = false;
+
+            if (System.Reflection.Assembly.GetEntryAssembly() == null || System.Reflection.Assembly.GetEntryAssembly().FullName.ToLower().Contains("arcmap"))
             {
-                Init(fiPath.FullName, bRequiredInput);
-            }
-        }
-
-        public void Initialize(string sPath, bool bRequiredInput)
-        {
-            Init(sPath, bRequiredInput);
-        }
-
-        private void Init(string sPath, bool bRequiredInput)
-        {
-            txtPath.Text = sPath;
-            RequiredInput = bRequiredInput;
-        }
-
-        private void ucInput_Load(object sender, EventArgs e)
-        {
-            // Needed by the Visual Studio form designer
-            if (System.Reflection.Assembly.GetEntryAssembly() == null)
-                return;
-
-            // Hide select layer button when ArcMap is not the parent executable
-            if (!System.Reflection.Assembly.GetEntryAssembly().FullName.ToLower().Contains("arcmap"))
-            {
-                cmdSelectLayer.Visible = false;
                 txtPath.Width = cmdBrowse.Right - txtPath.Left;
-                cmdBrowse.Left = cmdSelectLayer.Left;
             }
-        }
-
-        private void txtPath_TextChanged(object sender, EventArgs e)
-        {
-            if (PathChanged != null)
+            else
             {
-                PathChanged(null, new PathEventArgs(Path, Noun, this.Handle));
+                cmdAddToMap.Visible = false;
+                txtPath.Width = cmdAddToMap.Right - txtPath.Left;
             }
         }
 
-        public bool ValidateForm()
+        protected void InitializeBrowseNew(string sNoun)
         {
-            throw new NotImplementedException();
+            Noun = sNoun;
+
+            // Moving the browse button needs to happen after it's right edge is used to adjust textbox
+            txtPath.Width = cmdBrowse.Right - txtPath.Left;
+            cmdAddToMap.Visible = false;
+            cmdBrowse.Left = cmdAddToMap.Left;
         }
 
         private void cmdBrowse_Click(object sender, EventArgs e)
         {
-            if (BrowseFile != null)
+            if (Browse != null)
             {
-                BrowseFile(txtPath, new PathEventArgs(Path, string.Format("Specify {0}", Noun), this.Handle));
+                Browse(txtPath, new PathEventArgs(FullPath, string.Format("Specify {0}", Noun), this.Handle));
             }
         }
 
-        private void cmdSelectLayer_Click(object sender, EventArgs e)
+        private void cmdAddToMap_Click(object sender, EventArgs e)
         {
-            if (SelectLayer != null)
+            if (AddToMap != null)
             {
-                SelectLayer(txtPath, new PathEventArgs(Path, string.Format("Select {0} Map Layer", Noun), this.Handle));
+                AddToMap(txtPath, new PathEventArgs(FullPath, string.Format("AddTo {0} To Map", Noun), this.Handle));
             }
-        }
-
-        public void ClearSelectedItem()
-        {
-            txtPath.TextChanged -= txtPath_TextChanged;
-            txtPath.Text = string.Empty;
-            txtPath.TextChanged += txtPath_TextChanged;
         }
     }
 }
