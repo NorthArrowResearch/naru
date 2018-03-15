@@ -3,9 +3,9 @@ using System.Data.SQLite;
 
 namespace naru.db.sqlite
 {
-    class SQLiteHelpers
+    public class SQLiteHelpers
     {
-        public static long GetScalarID(ref SQLiteCommand dbCom)
+        public static long GetScalarID(SQLiteCommand dbCom)
         {
             long nID = 0;
             object objID = dbCom.ExecuteScalar();
@@ -19,13 +19,13 @@ namespace naru.db.sqlite
         public static long GetScalarID(SQLiteConnection dbCon, string sSQL)
         {
             SQLiteCommand dbCom = new SQLiteCommand(sSQL, dbCon);
-            return GetScalarID(ref dbCom);
+            return GetScalarID(dbCom);
         }
 
         public static long GetScalarID(SQLiteTransaction dbTrans, string sSQL)
         {
             SQLiteCommand dbCom = new SQLiteCommand(sSQL, dbTrans.Connection, dbTrans);
-            return GetScalarID(ref dbCom);
+            return GetScalarID(dbCom);
         }
 
         public static long GetScalarID(string sDBCon, string sSQL)
@@ -39,7 +39,7 @@ namespace naru.db.sqlite
             return nResult;
         }
 
-        public static double GetSafeValueDbl(ref SQLiteDataReader dbRead, string sColumnName)
+        public static double GetSafeValueDbl(SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
                 return 0;
@@ -47,7 +47,7 @@ namespace naru.db.sqlite
                 return dbRead.GetDouble(dbRead.GetOrdinal(sColumnName));
         }
 
-        public static Nullable<double> GetSafeValueNDbl(ref SQLiteDataReader dbRead, string sColumnName)
+        public static Nullable<double> GetSafeValueNDbl(SQLiteDataReader dbRead, string sColumnName)
         {
             Nullable<double> fResult = new Nullable<double>();
             if (!dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
@@ -55,7 +55,7 @@ namespace naru.db.sqlite
             return fResult;
         }
 
-        public static long GetSafeValueInt(ref SQLiteDataReader dbRead, string sColumnName)
+        public static long GetSafeValueInt(SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
                 return 0;
@@ -63,7 +63,7 @@ namespace naru.db.sqlite
                 return dbRead.GetInt64(dbRead.GetOrdinal(sColumnName));
         }
 
-        public static Nullable<long> GetSafeValueNInt(ref SQLiteDataReader dbRead, string sColumnName)
+        public static Nullable<long> GetSafeValueNInt(SQLiteDataReader dbRead, string sColumnName)
         {
             Nullable<long> nResult = new Nullable<long>();
             if (!dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
@@ -71,7 +71,7 @@ namespace naru.db.sqlite
             return nResult;
         }
 
-        public static bool GetSafeValueBool(ref SQLiteDataReader dbRead, string sColumnName)
+        public static bool GetSafeValueBool(SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
                 return false;
@@ -79,7 +79,7 @@ namespace naru.db.sqlite
                 return dbRead.GetBoolean(dbRead.GetOrdinal(sColumnName));
         }
 
-        public static DateTime GetSafeValueDT(ref SQLiteDataReader dbRead, string sColumnName)
+        public static DateTime GetSafeValueDT(SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
                 return DateTime.Now;
@@ -87,7 +87,7 @@ namespace naru.db.sqlite
                 return (DateTime)dbRead[sColumnName];
         }
 
-        public static Nullable<DateTime> GetSafeValueNDT(ref SQLiteDataReader dbRead, string sColumnName)
+        public static Nullable<DateTime> GetSafeValueNDT(SQLiteDataReader dbRead, string sColumnName)
         {
             Nullable<DateTime> dtValue = new Nullable<DateTime>();
             if (!dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
@@ -95,12 +95,12 @@ namespace naru.db.sqlite
             return dtValue;
         }
 
-        public static string GetSafeValueStr(ref SQLiteDataReader dbRead, string sColumnName)
+        public static string GetSafeValueStr(SQLiteDataReader dbRead, string sColumnName)
         {
-            return GetSafeValueStr(ref dbRead, dbRead.GetOrdinal(sColumnName));
+            return GetSafeValueStr(dbRead, dbRead.GetOrdinal(sColumnName));
         }
 
-        public static string GetSafeValueStr(ref SQLiteDataReader dbRead, int ColIndex)
+        public static string GetSafeValueStr(SQLiteDataReader dbRead, int ColIndex)
         {
             string sValue = string.Empty;
             if (!dbRead.IsDBNull(ColIndex))
@@ -133,12 +133,12 @@ namespace naru.db.sqlite
         /// <param name="txt">textbox containing string to be inserted</param>
         /// <param name="sParameterName">Name of parameter to create</param>
         /// <returns></returns>
-        public static SQLiteParameter AddStringParameterN(ref SQLiteCommand dbCom, ref System.Windows.Forms.TextBox txt, string sParameterName)
+        public static SQLiteParameter AddStringParameterN(SQLiteCommand dbCom, System.Windows.Forms.TextBox txt, string sParameterName)
         {
-            return AddStringParameterN(ref dbCom, txt.Text, sParameterName);
+            return AddStringParameterN(dbCom, txt.Text, sParameterName);
         }
 
-        public static SQLiteParameter AddStringParameterN(ref SQLiteCommand dbCom, string sStringValue, string sParameterName)
+        public static SQLiteParameter AddStringParameterN(SQLiteCommand dbCom, string sStringValue, string sParameterName)
         {
             System.Diagnostics.Debug.Assert(dbCom.CommandText.ToLower().Contains("insert") || dbCom.CommandText.ToLower().Contains("update"), "SQL command must be an INSERT or UPDATE command");
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sParameterName), "The parameter name cannot be empty.");
@@ -157,23 +157,31 @@ namespace naru.db.sqlite
             return p;
         }
 
-        public static SQLiteParameter AddDoubleParameterN(ref SQLiteCommand dbCom, double? fValue, string sParameterName)
+        public static SQLiteParameter AddDoubleParameterN(SQLiteCommand dbCom, double? fValue, string sParameterName)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sParameterName), "The parameter name cannot be empty.");
-            System.Diagnostics.Debug.Assert(!dbCom.Parameters.Contains(sParameterName), "The SQL command already contains a parameter with this name.");
 
-            SQLiteParameter p = dbCom.Parameters.Add(sParameterName, System.Data.DbType.Double);
-            if (fValue.HasValue)
-                p.Value = fValue.Value;
+            SQLiteParameter param = null;
+            if (dbCom.Parameters.Contains(sParameterName))
+            {
+                param = dbCom.Parameters[sParameterName];
+            }
             else
             {
-                p.Value = DBNull.Value;
+                param = dbCom.Parameters.Add(sParameterName, System.Data.DbType.Double);
             }
 
-            return p;
+            if (fValue.HasValue)
+                param.Value = fValue.Value;
+            else
+            {
+                param.Value = DBNull.Value;
+            }
+
+            return param;
         }
 
-        public static SQLiteParameter AddDateTimeParameterN(ref SQLiteCommand dbCom, DateTime? fValue, string sParameterName)
+        public static SQLiteParameter AddDateTimeParameterN(SQLiteCommand dbCom, DateTime? fValue, string sParameterName)
         {
             System.Diagnostics.Debug.Assert(!dbCom.Parameters.Contains(sParameterName), "The SQL command already contains a parameter with this name.");
 
@@ -188,7 +196,7 @@ namespace naru.db.sqlite
             return p;
         }
 
-        public static SQLiteParameter AddLongParameterN(ref SQLiteCommand dbCom, long? nValue, string sParameterName)
+        public static SQLiteParameter AddLongParameterN(SQLiteCommand dbCom, long? nValue, string sParameterName)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sParameterName), "The parameter name cannot be empty.");
             System.Diagnostics.Debug.Assert(!dbCom.Parameters.Contains(sParameterName), "The SQL command already contains a parameter with this name.");
@@ -204,7 +212,7 @@ namespace naru.db.sqlite
             return p;
         }
 
-        public static long GetLastInsertID(ref SQLiteTransaction dbTrans)
+        public static long GetLastInsertID(SQLiteTransaction dbTrans)
         {
             SQLiteCommand dbCom = new SQLiteCommand("SELECT last_insert_rowid()", dbTrans.Connection, dbTrans);
             return (long)dbCom.ExecuteScalar();
