@@ -8,28 +8,28 @@ namespace naru.xml
 {
     public class XMLHelpers
     {
-        public static XmlAttribute AddAttribute(XmlDocument xmlDoc, XmlNode nod, string sAttributeName, string sAttributeValue)
+        public static XmlAttribute AddAttribute(XmlNode nod, string sAttributeName, string sAttributeValue)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sAttributeName), "The XML attribute name cannot be empty.");
 
-            XmlAttribute att = xmlDoc.CreateAttribute(sAttributeName);
+            XmlAttribute att = nod.OwnerDocument.CreateAttribute(sAttributeName);
             att.InnerText = sAttributeValue;
             nod.Attributes.Append(att);
             return att;
         }
 
-        public static XmlNode AddNode(XmlDocument xmlDoc, XmlNode nodParent, string sNodeName)
+        public static XmlNode AddNode(XmlNode nodParent, string sNodeName)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sNodeName), "The XML node name cannot be empty.");
-            XmlNode nod = xmlDoc.CreateElement(sNodeName);
+            XmlNode nod = nodParent.OwnerDocument.CreateElement(sNodeName);
             nodParent.AppendChild(nod);
             return nod;
         }
 
-        public static XmlNode AddNode(XmlDocument xmlDoc, XmlNode nodParent, string sNodeName, string sInnerText)
+        public static XmlNode AddNode(XmlNode nodParent, string sNodeName, string sInnerText)
         {
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(sNodeName), "The XML node name cannot be empty.");
-            XmlNode nod = xmlDoc.CreateElement(sNodeName);
+            XmlNode nod = nodParent.OwnerDocument.CreateElement(sNodeName);
             if (!string.IsNullOrEmpty(sInnerText))
                 nod.InnerText = sInnerText;
             nodParent.AppendChild(nod);
