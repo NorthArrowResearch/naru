@@ -5,19 +5,17 @@ namespace naru.error
 {
     public class ExceptionUI : ExceptionBase
     {
-
         /// <summary>
         /// Handle exception in user interface tools
         /// </summary>
         /// <param name="ex">Generic Exception</param>
         /// <param name="UIMessage">Optional main user interface message for form</param>
         /// <remarks></remarks>
-
-        public static void HandleException(System.Exception ex, string UIMessage)
+        public static void HandleException(Exception ex, string UIMessage, string newIssueURL)
         {
-            string sMessage = GetExceptionInformation(ex);
-            sMessage += Environment.NewLine + "Windows: " + Environment.OSVersion;
-            sMessage += Environment.NewLine + "Date: " + DateTime.Now.ToString();
+            string formattedException = GetExceptionInformation(ex);
+            formattedException += Environment.NewLine + "Windows: " + Environment.OSVersion;
+            formattedException += Environment.NewLine + "Date: " + DateTime.Now.ToString();
             //
             // Ensure the wait cursor is reverted back to the default cursor before showing any message box
             //
@@ -29,15 +27,13 @@ namespace naru.error
                 UIMessage = ex.Data["UIMessage"].ToString();
             }
 
-            Debug.WriteLine(sMessage);
-            Debug.WriteLine(DateTime.Now);
-            frmException myFrm = new frmException(UIMessage, sMessage);
-            myFrm.ShowDialog();
-        }
+            if (string.IsNullOrEmpty(UIMessage))
+                UIMessage = ex.Message;
 
-        public static void HandleException(Exception ex)
-        {
-            ExceptionUI.HandleException(ex, "");
+            Debug.WriteLine(formattedException);
+            Debug.WriteLine(DateTime.Now);
+            frmException myFrm = new frmException(UIMessage, formattedException, newIssueURL);
+            myFrm.ShowDialog();
         }
     }
 }

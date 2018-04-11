@@ -58,7 +58,7 @@ namespace naru.error
                 sMessage += Environment.NewLine + " --- Parameters --- ";
                 foreach (System.Collections.DictionaryEntry de in ex.Data)
                 {
-                    sMessage += Environment.NewLine + " " + de.Key + " = " + de.Value;
+                    sMessage += Environment.NewLine + de.Key + " = " + de.Value;
                 }
             }
 
@@ -69,7 +69,7 @@ namespace naru.error
                 {
                     if ((de.Key != null))
                     {
-                        sMessage += Environment.NewLine + " " + de.Key.ToString() + " = ";
+                        sMessage += Environment.NewLine + de.Key.ToString() + " = ";
                         if (de.Value == null)
                         {
                             sMessage += "Nothing";

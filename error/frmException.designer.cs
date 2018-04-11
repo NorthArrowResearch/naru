@@ -33,6 +33,7 @@
             this.btnDetails = new System.Windows.Forms.Button();
             this.grbDetails = new System.Windows.Forms.GroupBox();
             this.txtErrorMessage = new System.Windows.Forms.TextBox();
+            this.cmdSend = new System.Windows.Forms.Button();
             this.grbDetails.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,6 +77,7 @@
             this.grbDetails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grbDetails.Controls.Add(this.cmdSend);
             this.grbDetails.Controls.Add(this.txtErrorMessage);
             this.grbDetails.Location = new System.Drawing.Point(14, 69);
             this.grbDetails.Margin = new System.Windows.Forms.Padding(2);
@@ -88,15 +90,28 @@
             // 
             // txtErrorMessage
             // 
-            this.txtErrorMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtErrorMessage.Location = new System.Drawing.Point(2, 15);
+            this.txtErrorMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtErrorMessage.Location = new System.Drawing.Point(2, 42);
             this.txtErrorMessage.Margin = new System.Windows.Forms.Padding(2);
             this.txtErrorMessage.Multiline = true;
             this.txtErrorMessage.Name = "txtErrorMessage";
             this.txtErrorMessage.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtErrorMessage.Size = new System.Drawing.Size(518, 177);
+            this.txtErrorMessage.Size = new System.Drawing.Size(518, 150);
             this.txtErrorMessage.TabIndex = 0;
             this.txtErrorMessage.TabStop = false;
+            // 
+            // cmdSend
+            // 
+            this.cmdSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdSend.Location = new System.Drawing.Point(332, 14);
+            this.cmdSend.Name = "cmdSend";
+            this.cmdSend.Size = new System.Drawing.Size(188, 23);
+            this.cmdSend.TabIndex = 1;
+            this.cmdSend.Text = "Send Error To Development Team";
+            this.cmdSend.UseVisualStyleBackColor = true;
+            this.cmdSend.Click += new System.EventHandler(this.cmdSend_Click);
             // 
             // frmException
             // 
@@ -114,6 +129,7 @@
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(495, 112);
             this.Name = "frmException";
+            this.ShowIcon = false;
             this.Text = "Handled Exception";
             this.Load += new System.EventHandler(this.ExceptionForm_Load);
             this.grbDetails.ResumeLayout(false);
@@ -130,5 +146,6 @@
         private System.Windows.Forms.Button btnDetails;
         private System.Windows.Forms.GroupBox grbDetails;
         private System.Windows.Forms.TextBox txtErrorMessage;
+        private System.Windows.Forms.Button cmdSend;
     }
 }
