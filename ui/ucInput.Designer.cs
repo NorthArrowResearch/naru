@@ -28,9 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.txtPath = new System.Windows.Forms.TextBox();
             this.cmdBrowse = new System.Windows.Forms.Button();
             this.cmdAddToMap = new System.Windows.Forms.Button();
+            this.tTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // txtPath
@@ -44,12 +46,12 @@
             this.txtPath.TabIndex = 0;
             this.txtPath.TabStop = false;
             // 
-            // cmdSelect
+            // cmdBrowse
             // 
             this.cmdBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdBrowse.Image = global::naru.Properties.Resources.add_data;
             this.cmdBrowse.Location = new System.Drawing.Point(108, 0);
-            this.cmdBrowse.Name = "cmdSelect";
+            this.cmdBrowse.Name = "cmdBrowse";
             this.cmdBrowse.Size = new System.Drawing.Size(23, 23);
             this.cmdBrowse.TabIndex = 2;
             this.cmdBrowse.UseVisualStyleBackColor = true;
@@ -75,6 +77,7 @@
             this.Controls.Add(this.txtPath);
             this.Name = "ucInput";
             this.Size = new System.Drawing.Size(158, 23);
+            this.Load += new System.EventHandler(this.ucInput_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -84,5 +87,6 @@
         private System.Windows.Forms.Button cmdAddToMap;
         protected System.Windows.Forms.TextBox txtPath;
         private System.Windows.Forms.Button cmdBrowse;
+        private System.Windows.Forms.ToolTip tTip;
     }
 }

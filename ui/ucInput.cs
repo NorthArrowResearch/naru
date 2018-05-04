@@ -78,5 +78,11 @@ namespace naru.ui
                 AddToMap(txtPath, new PathEventArgs(FullPath, string.Format("AddTo {0} To Map", Noun), this.Handle));
             }
         }
+
+        private void ucInput_Load(object sender, EventArgs e)
+        {
+            tTip.SetToolTip(cmdBrowse, "Browse and select an input GIS layer.");
+            tTip.SetToolTip(cmdAddToMap, "Add the GIS layer to the current map document.");
+        }
     }
 }
