@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="db\NamedObject.cs" />
+    <Compile Include="db\sqlite\CrossTab.cs" />
     <Compile Include="db\sqlite\SQLiteHelpers.cs" />
     <Compile Include="error\ExceptionBase.cs" />
     <Compile Include="error\ExceptionUI.cs" />
