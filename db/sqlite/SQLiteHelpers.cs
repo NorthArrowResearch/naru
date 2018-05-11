@@ -45,8 +45,8 @@ namespace naru.db.sqlite
             using (SQLiteConnection dbCon = new SQLiteConnection(conString))
             {
                 dbCon.Open();
-                SQLiteCommand dbCom = new SQLiteCommand(string.Format("SELECT Count({0}) FROM {1} WHERE {0} = @NameField GroupBy {0}", nameField, table), dbCon);
-                dbCom.Parameters.AddWithValue(nameField, value);
+                SQLiteCommand dbCom = new SQLiteCommand(string.Format("SELECT Count({0}) FROM {1} WHERE {0} = @NameField Group By {0}", nameField, table), dbCon);
+                dbCom.Parameters.AddWithValue("NameField", value);
                 existingCount = GetScalarID(dbCom);
             }
 
