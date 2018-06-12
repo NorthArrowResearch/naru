@@ -15,7 +15,7 @@ namespace naru.formatters
         /// <param name="val"></param>
         /// <param name="precision"></param>
         /// <returns></returns>
-        public static string ToNumString<T>(this T val, int precision = -1)
+        public static string ToNumString<T>(this T val, int precision = -1, bool thousandsSeparator = true)
         {
 
             if (precision < 0 || precision > 25 || val is int || val is uint || val is long)
@@ -24,7 +24,7 @@ namespace naru.formatters
             {
                 NumberFormatInfo numFormat = new NumberFormatInfo() {
                     NumberDecimalDigits = precision,
-                    NumberGroupSeparator = ","
+                    NumberGroupSeparator = thousandsSeparator ? "," : string.Empty
                 };
 
                 if (val is decimal)
