@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 
 namespace naru.os
 {
@@ -148,6 +149,22 @@ namespace naru.os
             // Adjust the format string to your preferences. For example "{0:0.#}{1}" would
             // show a single decimal place, and no space.
             return String.Format("{0:0.##} {1}", len, sizes[order]);
+        }
+
+        public static System.IO.FileInfo BrowseOpenFile(string sFormTitle, string sFilter)
+        {
+            OpenFileDialog frm = new OpenFileDialog();
+            frm.Title = sFormTitle;
+            frm.AddExtension = true;
+            frm.Filter = sFilter;
+            frm.CheckFileExists = true;
+            frm.AddExtension = true;
+
+            System.IO.FileInfo result = null;
+            if (frm.ShowDialog() == DialogResult.OK)
+                result = new System.IO.FileInfo(frm.FileName);
+
+            return result;
         }
     }
 }
