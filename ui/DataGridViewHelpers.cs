@@ -8,7 +8,7 @@ namespace naru.ui
 {
     public class DataGridViewHelpers
     {
-        public static void ConfigureDataGridView(ref DataGridView dg, DockStyle eDock, bool bMultiSelect, bool bAutoGenerateCols)
+        public static void ConfigureDataGridView(DataGridView dg, DockStyle eDock, bool bMultiSelect, bool bAutoGenerateCols)
         {
             dg.AllowUserToAddRows = false;
             dg.AllowUserToDeleteRows = false;
@@ -20,7 +20,7 @@ namespace naru.ui
             dg.Dock = eDock;
             dg.AutoGenerateColumns = bAutoGenerateCols;
         }
-        public static void AddDataGridViewTextColumn(ref DataGridView dg, string sHeaderText, string sDataPropertyMember, bool bVisible, bool bReadyOnly = true, string sFormat = "", DataGridViewAutoSizeColumnMode eAutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells, DataGridViewContentAlignment eAlignment = DataGridViewContentAlignment.MiddleLeft)
+        public static void AddDataGridViewTextColumn(DataGridView dg, string sHeaderText, string sDataPropertyMember, bool bVisible, bool bReadyOnly = true, string sFormat = "", DataGridViewAutoSizeColumnMode eAutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells, DataGridViewContentAlignment eAlignment = DataGridViewContentAlignment.MiddleLeft)
         {
             var aCol = new DataGridViewTextBoxColumn();
             aCol.Visible = bVisible;
@@ -36,7 +36,7 @@ namespace naru.ui
             dg.Columns.Add(aCol);
         }
 
-        public static void AddDataGridViewCheckboxColumn(ref DataGridView dg, string sHeaderText)
+        public static void AddDataGridViewCheckboxColumn(DataGridView dg, string sHeaderText)
         {
             var aCol = new DataGridViewCheckBoxColumn();
             aCol.HeaderText = sHeaderText;
@@ -47,7 +47,7 @@ namespace naru.ui
             dg.Columns.Add(aCol);
         }
 
-        public static void AddDataGridViewLinkColumn(ref DataGridView dg, string sHeaderText, string sDataPropertyMember, bool bVisible, DataGridViewContentAlignment eAlignment = DataGridViewContentAlignment.MiddleLeft)
+        public static void AddDataGridViewLinkColumn(DataGridView dg, string sHeaderText, string sDataPropertyMember, bool bVisible, DataGridViewContentAlignment eAlignment = DataGridViewContentAlignment.MiddleLeft)
         {
             var aCol = new DataGridViewLinkColumn();
             aCol.Visible = bVisible;
@@ -59,12 +59,12 @@ namespace naru.ui
             dg.Columns.Add(aCol);
         }
 
-        public static void AddDataGridViewAuditColumns(ref DataGridView dg, string sDateFormatString)
+        public static void AddDataGridViewAuditColumns(DataGridView dg, string sDateFormatString)
         {
-            AddDataGridViewTextColumn(ref dg, "Added On", "Audit_AddedOn", true, true, sDateFormatString);
-            AddDataGridViewTextColumn(ref dg, "Added By", "Audit_AddedBy", true);
-            AddDataGridViewTextColumn(ref dg, "Updated On", "Audit_UpdatedOn", true, true, sDateFormatString);
-            AddDataGridViewTextColumn(ref dg, "Updated By", "Audit_UpdatedBy", true);
+            AddDataGridViewTextColumn(dg, "Added On", "Audit_AddedOn", true, true, sDateFormatString);
+            AddDataGridViewTextColumn(dg, "Added By", "Audit_AddedBy", true);
+            AddDataGridViewTextColumn(dg, "Updated On", "Audit_UpdatedOn", true, true, sDateFormatString);
+            AddDataGridViewTextColumn(dg, "Updated By", "Audit_UpdatedBy", true);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace naru.ui
         /// <param name="sFormTitle">Title to show on the save file dialog</param>
         /// <param name="sDefaultFileName">Default file name (without extension)</param>
         /// <param name="bOpenFileWhenDone">Whether or not to open the file when done using the default software for CSV</param>
-        public static void ExportToCSV(ref DataGridView grdData, string sInitialDirectory, string sFormTitle, string sDefaultFileName, bool bOpenFileWhenDone = false)
+        public static void ExportToCSV(DataGridView grdData, string sInitialDirectory, string sFormTitle, string sDefaultFileName, bool bOpenFileWhenDone = false)
         {
             SaveFileDialog frm = new SaveFileDialog();
             frm.Title = sFormTitle;
@@ -86,7 +86,7 @@ namespace naru.ui
 
             if (frm.ShowDialog() == DialogResult.OK)
             {
-                System.IO.File.WriteAllText(frm.FileName, ExportToString(ref grdData));
+                System.IO.File.WriteAllText(frm.FileName, ExportToString(grdData));
                 if (bOpenFileWhenDone && System.IO.File.Exists(frm.FileName))
                 {
                     System.Diagnostics.Process.Start(frm.FileName);
@@ -99,7 +99,7 @@ namespace naru.ui
         /// </summary>
         /// <param name="grdData">Data gridview with data to export</param>
         /// <returns>This seems to handle NoData values by inserted empty strings.</returns>
-        public static string ExportToString(ref DataGridView grdData)
+        public static string ExportToString(DataGridView grdData)
         {
             var sb = new StringBuilder();
 

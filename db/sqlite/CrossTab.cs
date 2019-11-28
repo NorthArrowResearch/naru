@@ -31,10 +31,10 @@ namespace naru.db.sqlite
 
             // Add all the rows to the DataTable. Initially set the row headers to the IDs of the items
             Dictionary<long, int> dRowLookup = null;
-            AppendRows(sDBCon, sqlRows, ref dt, out dRowLookup);
+            AppendRows(sDBCon, sqlRows, dt, out dRowLookup);
 
             // Fill in the content of the cross tab using the two dictionaries to find appropraite rows and columns
-            PopulateCrossTab(sDBCon, sqlContents, ref dt, dRowLookup, dColLookup);
+            PopulateCrossTab(sDBCon, sqlContents, dt, dRowLookup, dColLookup);
 
             return dt;
         }
@@ -65,7 +65,7 @@ namespace naru.db.sqlite
             return cols.ToArray<DataColumn>();
         }
 
-        private static void AppendRows(string sDBCon, string sqlRows, ref DataTable dt, out Dictionary<long, int> dRows)
+        private static void AppendRows(string sDBCon, string sqlRows, DataTable dt, out Dictionary<long, int> dRows)
         {
             dRows = new Dictionary<long, int>();
             using (SQLiteConnection dbCon = new SQLiteConnection(sDBCon))
@@ -85,7 +85,7 @@ namespace naru.db.sqlite
             }
         }
 
-        private static void PopulateCrossTab(string sDBCon, string sqlContents, ref DataTable dt, Dictionary<long, int> dRows, Dictionary<long, int> dCols)
+        private static void PopulateCrossTab(string sDBCon, string sqlContents, DataTable dt, Dictionary<long, int> dRows, Dictionary<long, int> dCols)
         {
             using (SQLiteConnection dbCon = new SQLiteConnection(sDBCon))
             {

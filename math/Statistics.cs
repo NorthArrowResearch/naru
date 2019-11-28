@@ -20,7 +20,7 @@ namespace naru.math
         /// <param name="bIgnoreNeg9999">True indicates that values in the dictionary of -9999 should be ignored</param>
         /// <returns>Statistical mean, or zero if there are no values in the list</returns>
         /// <remarks></remarks>
-        public static double Mean(Dictionary<double, double>.ValueCollection dValues, ref int nCount, bool bIgnoreNeg9999 = true)
+        public static double Mean(Dictionary<double, double>.ValueCollection dValues, out int nCount, bool bIgnoreNeg9999 = true)
         {
             if (dValues is Dictionary<double, double>.ValueCollection)
             {
@@ -96,7 +96,7 @@ namespace naru.math
             }
         }
 
-        public static double FilteredMean(Dictionary<double, double>.ValueCollection dValues, double fStdDevThreshold, ref int nCount, bool bIgnoreNeg9999 = true)
+        public static double FilteredMean(Dictionary<double, double>.ValueCollection dValues, double fStdDevThreshold, out int nCount, bool bIgnoreNeg9999 = true)
         {
             if (dValues is Dictionary<double, double>.ValueCollection)
             {
@@ -117,7 +117,7 @@ namespace naru.math
             //
             // Get the mean and standard deviation of all the records in the dictionary
             //
-            double fFullMean = Mean(dValues, ref nCount);
+            double fFullMean = Mean(dValues, out nCount);
             dynamic fFullStdDev = StandardDeviation(dValues, fFullMean);
             nCount = 0;
             double fFilteredMean = 0;
@@ -180,7 +180,7 @@ namespace naru.math
             }
 
             int nCount = 0;
-            double fFullMean = Mean(dValues, ref nCount);
+            double fFullMean = Mean(dValues, out nCount);
             double fFullStdDev = StandardDeviation(dValues, fFullMean);
             double fDifferenceThreshold = (fStdDevThreshold * fFullStdDev);
 
@@ -218,10 +218,10 @@ namespace naru.math
         /// <param name="fStdDevThreshold"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static double FilteredStandardDeviation(Dictionary<double, double>.ValueCollection dValues, double fStdDevThreshold, ref int nFilteredCount)
+        public static double FilteredStandardDeviation(Dictionary<double, double>.ValueCollection dValues, double fStdDevThreshold, out int nFilteredCount)
         {
             int nCount = 0;
-            double fFilteredMean = FilteredMean(dValues, fStdDevThreshold, ref nCount);
+            double fFilteredMean = FilteredMean(dValues, fStdDevThreshold, out nCount);
             return FilteredStandardDeviation(dValues, fStdDevThreshold, nFilteredCount);
         }
 
@@ -277,14 +277,14 @@ namespace naru.math
         public static double StandardDeviation(Dictionary<double, double>.ValueCollection dValues)
         {
             int nCount = 0;
-            double fMean = Mean(dValues, ref nCount);
+            double fMean = Mean(dValues, out nCount);
             return StandardDeviation(dValues, fMean);
         }
 
         public static double CoefficientOfVariation(Dictionary<double, double>.ValueCollection dValues)
         {
             int nCount = 0;
-            double fMean = Mean(dValues, ref nCount);
+            double fMean = Mean(dValues, out nCount);
             double fStandardDeviation = StandardDeviation(dValues, fMean);
 
             double fCV = 0;

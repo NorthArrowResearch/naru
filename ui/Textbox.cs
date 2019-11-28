@@ -9,18 +9,18 @@ namespace naru.ui
 {
     public class Textbox
     {
-        public static void SetTextBoxToFolder(ref System.Windows.Forms.TextBox txt, string sFolder)
+        public static void SetTextBoxToFolder(System.Windows.Forms.TextBox txt, string sFolder)
         {
             if (!string.IsNullOrEmpty(sFolder) && System.IO.Directory.Exists(sFolder))
                 txt.Text = sFolder;
         }
 
-        public static bool ValidateTextBoxFolder(ref System.Windows.Forms.TextBox txt)
+        public static bool ValidateTextBoxFolder(System.Windows.Forms.TextBox txt)
         {
             return !(string.IsNullOrEmpty(txt.Text) || !System.IO.Directory.Exists(txt.Text));
         }
 
-        public static DialogResult BrowseFolder(ref System.Windows.Forms.TextBox txt)
+        public static DialogResult BrowseFolder(System.Windows.Forms.TextBox txt)
         {
             FolderBrowserDialog frm = new FolderBrowserDialog();
             DialogResult eResult = frm.ShowDialog();
@@ -30,7 +30,7 @@ namespace naru.ui
             return eResult;
         }
 
-        public static DialogResult BrowseSaveFile(ref System.Windows.Forms.TextBox txt, string sFormTitle, string sFilter)
+        public static DialogResult BrowseSaveFile(System.Windows.Forms.TextBox txt, string sFormTitle, string sFilter)
         {
             SaveFileDialog frm = new SaveFileDialog();
             frm.Title = sFormTitle;
@@ -55,15 +55,15 @@ namespace naru.ui
 
         public static DialogResult BrowseSaveRaster(TextBox txt, string sFormTitle, string sDefaultPath = "")
         {
-            return BrowseSaveFile(ref txt, sFormTitle, "Rasters (*.tif)|*.tif");
+            return BrowseSaveFile(txt, sFormTitle, "Rasters (*.tif)|*.tif");
         }
 
-        public static DialogResult BrowseSaveVector(ref TextBox txt, string sFormTitle, string sDefaultPath = "")
+        public static DialogResult BrowseSaveVector(TextBox txt, string sFormTitle, string sDefaultPath = "")
         {
-            return BrowseSaveFile(ref txt, sFormTitle, "ShapeFiles (*.shp)|*.shp");
+            return BrowseSaveFile(txt, sFormTitle, "ShapeFiles (*.shp)|*.shp");
         }
 
-        public static DialogResult BrowseOpenFile(ref System.Windows.Forms.TextBox txt, string sFormTitle, string sFilter)
+        public static DialogResult BrowseOpenFile(System.Windows.Forms.TextBox txt, string sFormTitle, string sFilter)
         {
             OpenFileDialog frm = new OpenFileDialog();
             frm.Title = sFormTitle;
@@ -90,12 +90,12 @@ namespace naru.ui
 
         public static DialogResult BrowseOpenVector(System.Windows.Forms.TextBox txt, string sFormTitle)
         {
-            return BrowseOpenFile(ref txt, sFormTitle, "ShapeFiles (*.shp)|*.shp");
+            return BrowseOpenFile(txt, sFormTitle, "ShapeFiles (*.shp)|*.shp");
         }
 
         public static DialogResult BrowseOpenRaster(System.Windows.Forms.TextBox txt, string sFormTitle)
         {
-            return BrowseOpenFile(ref txt, sFormTitle, "Raster Files (*.tif, *.tiff, *.img)|*.tif;*.tiff;*.img");
+            return BrowseOpenFile(txt, sFormTitle, "Raster Files (*.tif, *.tiff, *.img)|*.tif;*.tiff;*.img");
         }
     }
 }
