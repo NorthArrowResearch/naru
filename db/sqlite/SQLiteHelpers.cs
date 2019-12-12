@@ -39,6 +39,26 @@ namespace naru.db.sqlite
             return nResult;
         }
 
+        public static long GetRecordCount(string sDBCon, string sTableName)
+        {
+            long nResult = 0;
+
+            using (SQLiteConnection dbCon = new SQLiteConnection(sDBCon))
+            {
+                dbCon.Open();
+
+                using (SQLiteCommand dbCom = new SQLiteCommand(string.Format("SELECT COUNT(*) FROM {0}", sTableName), dbCon))
+                {
+                    object obj = dbCom.ExecuteScalar();
+                    if (obj != null)
+                        nResult = (long)obj;
+                }
+            }
+
+            return nResult;
+        }
+
+
         public static bool IsNameUnique(string conString, string table, string nameField, string value)
         {
             long existingCount = 0;
