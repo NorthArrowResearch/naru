@@ -22,11 +22,14 @@ namespace naru.math
         /// <remarks></remarks>
         public static double Mean(Dictionary<double, double>.ValueCollection dValues, out int nCount, bool bIgnoreNeg9999 = true)
         {
+            nCount = 0;
+            double fMean = 0;
+
             if (dValues is Dictionary<double, double>.ValueCollection)
             {
                 if (dValues.Count < 1)
                 {
-                    return 0;
+                    return fMean;
                 }
             }
             else
@@ -34,8 +37,6 @@ namespace naru.math
                 throw new Exception("Invalid list of values passed as argument.");
             }
 
-            nCount = 0;
-            double fMean = 0;
             foreach (double value in dValues)
             {
                 if (!bIgnoreNeg9999 || (bIgnoreNeg9999 && value > -9998))
@@ -98,11 +99,14 @@ namespace naru.math
 
         public static double FilteredMean(Dictionary<double, double>.ValueCollection dValues, double fStdDevThreshold, out int nCount, bool bIgnoreNeg9999 = true)
         {
+            nCount = 0;
+            double fFilteredMean = 0;
+
             if (dValues is Dictionary<double, double>.ValueCollection)
             {
                 if (dValues.Count < 1)
                 {
-                    return 0;
+                    return fFilteredMean;
                 }
             }
             else
@@ -119,8 +123,7 @@ namespace naru.math
             //
             double fFullMean = Mean(dValues, out nCount);
             dynamic fFullStdDev = StandardDeviation(dValues, fFullMean);
-            nCount = 0;
-            double fFilteredMean = 0;
+
             double fDifferenceThreshold = (fStdDevThreshold * fFullStdDev);
 
             foreach (double value in dValues)
@@ -221,6 +224,7 @@ namespace naru.math
         public static double FilteredStandardDeviation(Dictionary<double, double>.ValueCollection dValues, double fStdDevThreshold, out int nFilteredCount)
         {
             int nCount = 0;
+            nFilteredCount = 0;
             double fFilteredMean = FilteredMean(dValues, fStdDevThreshold, out nCount);
             return FilteredStandardDeviation(dValues, fStdDevThreshold, nFilteredCount);
         }
