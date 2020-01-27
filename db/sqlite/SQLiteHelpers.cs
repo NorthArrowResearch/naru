@@ -73,6 +73,31 @@ namespace naru.db.sqlite
             return existingCount == 0;
         }
 
+        public static string GetUniqueName(SQLiteConnection dbCon, string table, string nameField, string seedName)
+        {
+
+            string uniqueName = seedName;
+            int attempts = 1;
+            bool bUnique = false;
+
+            do
+            {
+                if (attempts > 1)
+                    uniqueName = string.Format("{0} {1}", seedName, attempts);
+
+                using (SQLiteCommand dbCom = new SQLiteCommand(string.Format("SELECT Count({0}) FROM {1} WHERE {0} = @NameField Group By {0}", nameField, table), dbCon))
+                {
+                    dbCom.Parameters.AddWithValue("NameField", uniqueName);
+                    bUnique = GetScalarID(dbCom) == 0;
+                }
+
+                attempts++;
+
+            } while (!bUnique);
+
+            return uniqueName;
+        }
+
         public static double GetSafeValueDbl(SQLiteDataReader dbRead, string sColumnName)
         {
             if (dbRead.IsDBNull(dbRead.GetOrdinal(sColumnName)))
