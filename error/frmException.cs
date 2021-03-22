@@ -64,8 +64,10 @@ namespace naru.error
 
         private void cmdSend_Click(object sender, EventArgs e)
         {
-            ui.Clipboard.SetText(txtErrorMessage.Text);
-            MessageBox.Show("The error information has been copied to the clipboard." +
+            // 22 Mar 2021 - Threading problem with copy to clipboard.
+            //ui.Clipboard.SetText(txtErrorMessage.Text);
+            //"The error information has been copied to the clipboard." +
+            MessageBox.Show(
                 " You will now be redirected to the web site where you can review existing issues" +
                 " and log a new issue if your issue is not already being tracked.", cmdSend.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             System.Diagnostics.Process.Start(_NewIssueURL);
