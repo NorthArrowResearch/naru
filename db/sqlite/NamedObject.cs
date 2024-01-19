@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SandbarWorkbench;
+using SandbarWorkbench.DBHelpers;
+using System;
 using System.ComponentModel;
 using System.Data.SQLite;
 
@@ -31,7 +33,7 @@ namespace naru.db.sqlite
             return cbo.Items.Count;
         }
 
-        public static int LoadComboColumnWithListItems(ref System.Windows.Forms.DataGridViewComboBoxColumn cbo, string sSQL, bool bAddSelectItem)
+        public static int LoadComboColumnWithListItems(string conString, ref System.Windows.Forms.DataGridViewComboBoxColumn cbo, string sSQL, bool bAddSelectItem)
         {
             if (cbo == null)
                 return 0;
@@ -39,7 +41,7 @@ namespace naru.db.sqlite
             cbo.Items.Clear();
 
             BindingList<naru.db.NamedObject> lItems = new BindingList<naru.db.NamedObject>();
-            using (System.Data.SQLite.SQLiteConnection dbCon = new System.Data.SQLite.SQLiteConnection(DBCon.ConnectionString))
+            using (System.Data.SQLite.SQLiteConnection dbCon = new System.Data.SQLite.SQLiteConnection(conString))
             {
                 dbCon.Open();
 
@@ -62,10 +64,10 @@ namespace naru.db.sqlite
             return cbo.Items.Count;
         }
 
-        public static int LoadComboWithListItems(ref System.Windows.Forms.ComboBox cbo, long nSelectID = 0)
+        public static int LoadComboWithListItems(string conString, ref System.Windows.Forms.ComboBox cbo, long nSelectID = 0)
         {
             if (cbo.Tag is string && !string.IsNullOrEmpty(cbo.Tag.ToString()))
-                return LoadComboWithListItems(ref cbo, DBCon.ConnectionString, cbo.Tag.ToString(), nSelectID);
+                return LoadComboWithListItems(ref cbo, conString, cbo.Tag.ToString(), nSelectID);
             else
                 throw new Exception("The combo box does not have an SQL query string attached as tag. Use overloaded method before this one.");
         }
